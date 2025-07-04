@@ -1,0 +1,32 @@
+name: 部署Hugo博客到GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # 当推送到main分支时触发工作流
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+        with:
+          submodules: true  # 获取Hugo主题
+          fetch-depth: 0    # 获取所有历史记录用于最新更新和发布日期
+
+      - name: 设置Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: 'latest'
+          extended: true    # 如果你使用的是extended版本的Hugo
+
+      - name: 构建
+        run: hugo --minify
+
+      - name: 部署
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          commit_message: ${{ github.event.head_commit.message }}
