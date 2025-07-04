@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Python on 我的博客</title><link>https://example.org/tags/python/</link><description>Recent content in Python on 我的博客</description><generator>Hugo -- 0.147.9</generator><language>zh-cn</language><lastBuildDate>Thu, 04 Jul 2024 20:22:30 +0800</lastBuildDate><atom:link href="https://example.org/tags/python/index.xml" rel="self" type="application/rss+xml"/><item><title>我的Python学习之路：从零基础到项目实战</title><link>https://example.org/posts/programming-learning/</link><pubDate>Thu, 04 Jul 2024 20:22:30 +0800</pubDate><guid>https://example.org/posts/programming-learning/</guid><description>&lt;h1 id="我的python学习之路从零基础到项目实战">我的Python学习之路：从零基础到项目实战&lt;/h1>
+&lt;p>作为一名非计算机专业的学习者，我一年前开始自学Python编程。这篇文章记录了我的学习历程、遇到的困难以及一些有用的资源和建议，希望对同样想学习编程的朋友有所帮助。&lt;/p>
+&lt;h2 id="为什么选择python">为什么选择Python？&lt;/h2>
+&lt;p>在众多编程语言中，我选择Python作为第一门语言有几个原因：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>语法简洁清晰&lt;/strong>：Python的语法接近自然语言，容易上手&lt;/li>
+&lt;li>&lt;strong>应用领域广泛&lt;/strong>：从网站开发到数据科学、人工智能，Python都有广泛应用&lt;/li>
+&lt;li>&lt;strong>丰富的学习资源&lt;/strong>：有大量免费的教程、文档和社区支持&lt;/li>
+&lt;li>&lt;strong>强大的生态系统&lt;/strong>：拥有众多优质的第三方库&lt;/li>
+&lt;/ol>
+&lt;h2 id="学习路线">学习路线&lt;/h2>
+&lt;h3 id="第一阶段基础语法1个月">第一阶段：基础语法（1个月）&lt;/h3>
+&lt;p>我从Python的基础语法开始学习：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 第一个Python程序&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>print(&lt;span style="color:#e6db74">&amp;#34;Hello, World!&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 变量和数据类型&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>name &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34;小明&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>age &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">25&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>is_student &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">True&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 条件语句&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> age &lt;span style="color:#f92672">&amp;gt;=&lt;/span> &lt;span style="color:#ae81ff">18&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(&lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#e6db74">{&lt;/span>name&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">是成年人&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">else&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(&lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#e6db74">{&lt;/span>name&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">是未成年人&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这个阶段我主要通过以下资源学习：&lt;/p>
+&lt;ul>
+&lt;li>《Python编程：从入门到实践》&lt;/li>
+&lt;li>&lt;a href="https://www.runoob.com/python/python-tutorial.html">菜鸟教程&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://docs.python.org/zh-cn/3/">Python官方文档&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="第二阶段进阶概念2个月">第二阶段：进阶概念（2个月）&lt;/h3>
+&lt;p>掌握基础后，我开始学习一些进阶概念：&lt;/p>
+&lt;ul>
+&lt;li>函数和模块&lt;/li>
+&lt;li>面向对象编程&lt;/li>
+&lt;li>文件处理&lt;/li>
+&lt;li>错误和异常处理&lt;/li>
+&lt;li>正则表达式&lt;/li>
+&lt;/ul>
+&lt;p>这个阶段，我发现&lt;a href="https://realpython.com/">Real Python&lt;/a>的教程非常有帮助，它们深入浅出地解释了许多概念。&lt;/p>
+&lt;h3 id="第三阶段专业领域3个月">第三阶段：专业领域（3个月）&lt;/h3>
+&lt;p>根据自己的兴趣，我选择了数据分析作为专攻方向，学习了：&lt;/p>
+&lt;ul>
+&lt;li>NumPy和Pandas库&lt;/li>
+&lt;li>数据可视化（Matplotlib、Seaborn）&lt;/li>
+&lt;li>简单的机器学习算法&lt;/li>
+&lt;/ul>
+&lt;h2 id="实战项目">实战项目&lt;/h2>
+&lt;p>理论学习后，我开始尝试一些实战项目来巩固知识：&lt;/p>
+&lt;h3 id="1-天气数据分析器">1. 天气数据分析器&lt;/h3>
+&lt;p>这是我的第一个项目，使用Python爬取天气数据，进行简单分析并可视化：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> pandas &lt;span style="color:#66d9ef">as&lt;/span> pd
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> matplotlib.pyplot &lt;span style="color:#66d9ef">as&lt;/span> plt
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> requests
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 获取天气数据&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>response &lt;span style="color:#f92672">=&lt;/span> requests&lt;span style="color:#f92672">.&lt;/span>get(&lt;span style="color:#e6db74">&amp;#39;https://api.openweathermap.org/data/2.5/forecast&amp;#39;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> params&lt;span style="color:#f92672">=&lt;/span>{&lt;span style="color:#e6db74">&amp;#39;q&amp;#39;&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;Beijing&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;appid&amp;#39;&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;YOUR_API_KEY&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;units&amp;#39;&lt;/span>: &lt;span style="color:#e6db74">&amp;#39;metric&amp;#39;&lt;/span>})
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>data &lt;span style="color:#f92672">=&lt;/span> response&lt;span style="color:#f92672">.&lt;/span>json()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 处理数据&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>temperatures &lt;span style="color:#f92672">=&lt;/span> [item[&lt;span style="color:#e6db74">&amp;#39;main&amp;#39;&lt;/span>][&lt;span style="color:#e6db74">&amp;#39;temp&amp;#39;&lt;/span>] &lt;span style="color:#66d9ef">for&lt;/span> item &lt;span style="color:#f92672">in&lt;/span> data[&lt;span style="color:#e6db74">&amp;#39;list&amp;#39;&lt;/span>]]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>times &lt;span style="color:#f92672">=&lt;/span> [item[&lt;span style="color:#e6db74">&amp;#39;dt_txt&amp;#39;&lt;/span>] &lt;span style="color:#66d9ef">for&lt;/span> item &lt;span style="color:#f92672">in&lt;/span> data[&lt;span style="color:#e6db74">&amp;#39;list&amp;#39;&lt;/span>]]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 可视化&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>figure(figsize&lt;span style="color:#f92672">=&lt;/span>(&lt;span style="color:#ae81ff">12&lt;/span>, &lt;span style="color:#ae81ff">6&lt;/span>))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>plot(times, temperatures)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>title(&lt;span style="color:#e6db74">&amp;#39;北京未来5天温度预测&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>xlabel(&lt;span style="color:#e6db74">&amp;#39;日期&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>ylabel(&lt;span style="color:#e6db74">&amp;#39;温度 (°C)&amp;#39;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>xticks(rotation&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">45&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>tight_layout()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>show()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-个人博客网站">2. 个人博客网站&lt;/h3>
+&lt;p>使用Django框架开发了一个简单的博客网站，实现了文章发布、评论等功能。&lt;/p></description></item></channel></rss>
