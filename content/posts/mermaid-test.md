@@ -12,18 +12,18 @@ categories = ['技术']
 
 ## 流程图示例
 
-{{< mermaid >}}
+```mermaid
 flowchart TD
     A[开始] --> B{是否已配置?}
     B -->|是| C[继续执行]
     B -->|否| D[配置环境]
     D --> C
     C --> E[完成]
-{{< /mermaid >}}
+```
 
 ## 时序图示例
 
-{{< mermaid >}}
+```mermaid
 sequenceDiagram
     participant 浏览器
     participant 服务器
@@ -33,11 +33,11 @@ sequenceDiagram
     服务器-->>浏览器: 返回CSS/JS
     浏览器->>服务器: 请求数据API
     服务器-->>浏览器: 返回JSON数据
-{{< /mermaid >}}
+```
 
 ## 类图示例
 
-{{< mermaid >}}
+```mermaid
 classDiagram
     class Animal {
         +String name
@@ -52,11 +52,11 @@ classDiagram
     }
     Animal <|-- Dog
     Animal <|-- Cat
-{{< /mermaid >}}
+```
 
 ## 甘特图示例
 
-{{< mermaid >}}
+```mermaid
 gantt
     title 项目开发计划
     dateFormat  YYYY-MM-DD
@@ -68,17 +68,17 @@ gantt
     测试          :         dev2, after dev1, 10d
     section 发布阶段
     部署上线        :         rel1, after dev2, 2d
-{{< /mermaid >}}
+```
 
 ## 饼图示例
 
-{{< mermaid >}}
+```mermaid
 pie title 网站访问来源
     "搜索引擎" : 45.2
     "社交媒体" : 30.5
     "直接访问" : 15.3
     "其他" : 9.0
-{{< /mermaid >}}
+```
 
 ## 使用说明
 

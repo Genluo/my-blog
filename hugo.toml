@@ -53,15 +53,10 @@ theme = 'PaperMod'
     name = "kofi"
     url = "https://ko-fi.com/"
 
-  # Mermaid配置
+  # 资源配置
   [params.assets]
     disableHLJS = false
     disableFingerprinting = true
-
-  # 启用Mermaid
-  [params.mermaid]
-    enable = true
-    theme = "neutral"
 
 [menu]
   [[menu.main]]
