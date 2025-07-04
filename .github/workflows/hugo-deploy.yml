@@ -5,6 +5,10 @@ on:
     branches:
       - main  # 当推送到main分支时触发工作流
 
+# 添加权限配置
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
