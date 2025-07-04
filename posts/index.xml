@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on 我的博客</title><link>https://example.org/posts/</link><description>Recent content in Posts on 我的博客</description><generator>Hugo -- 0.147.9</generator><language>zh-cn</language><lastBuildDate>Fri, 04 Jul 2025 20:13:45 +0800</lastBuildDate><atom:link href="https://example.org/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>我的第一篇博客</title><link>https://example.org/posts/first-post/</link><pubDate>Fri, 04 Jul 2025 20:13:45 +0800</pubDate><guid>https://example.org/posts/first-post/</guid><description>&lt;h1 id="欢迎来到我的博客">欢迎来到我的博客&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on 我的博客</title><link>https://genluo.github.io/my-blog/posts/</link><description>Recent content in Posts on 我的博客</description><generator>Hugo -- 0.147.9</generator><language>zh-cn</language><lastBuildDate>Fri, 04 Jul 2025 20:13:45 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>我的第一篇博客</title><link>https://genluo.github.io/my-blog/posts/first-post/</link><pubDate>Fri, 04 Jul 2025 20:13:45 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/first-post/</guid><description>&lt;h1 id="欢迎来到我的博客">欢迎来到我的博客&lt;/h1>
 &lt;p>这是我用Hugo创建的第一篇博客文章。Hugo是一个非常强大且高效的静态网站生成器。&lt;/p>
 &lt;h2 id="为什么选择hugo">为什么选择Hugo？&lt;/h2>
 &lt;ol>
@@ -30,7 +30,7 @@ emperor2((朱允炆))--次子--&amp;gt;朱标
 朱棡--三子--&amp;gt;emperor
 emperor3((朱棣))--四子--&amp;gt;emperor
 emperor4((朱高炽))--长子--&amp;gt;emperor3
-&lt;/code>&lt;/pre></description></item><item><title>Mermaid图表测试</title><link>https://example.org/posts/mermaid-test/</link><pubDate>Thu, 04 Jul 2024 20:30:00 +0800</pubDate><guid>https://example.org/posts/mermaid-test/</guid><description>&lt;h1 id="mermaid图表测试">Mermaid图表测试&lt;/h1>
+&lt;/code>&lt;/pre></description></item><item><title>Mermaid图表测试</title><link>https://genluo.github.io/my-blog/posts/mermaid-test/</link><pubDate>Thu, 04 Jul 2024 20:30:00 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/mermaid-test/</guid><description>&lt;h1 id="mermaid图表测试">Mermaid图表测试&lt;/h1>
 &lt;p>本文展示如何在Hugo博客中使用Mermaid图表。&lt;/p>
 &lt;h2 id="流程图示例">流程图示例&lt;/h2>
 &lt;div class="mermaid">
@@ -93,7 +93,7 @@ pie title 网站访问来源
 "其他" : 9.0
 &lt;/div>
 &lt;h2 id="使用说明">使用说明&lt;/h2>
-&lt;p>要在Hugo博客中使用Mermaid图表，需要：&lt;/p></description></item><item><title>疫情后的生活思考：重新定义"正常"</title><link>https://example.org/posts/life-reflections/</link><pubDate>Thu, 04 Jul 2024 20:23:30 +0800</pubDate><guid>https://example.org/posts/life-reflections/</guid><description>&lt;h1 id="疫情后的生活思考重新定义正常">疫情后的生活思考：重新定义&amp;quot;正常&amp;quot;&lt;/h1>
+&lt;p>要在Hugo博客中使用Mermaid图表，需要：&lt;/p></description></item><item><title>疫情后的生活思考：重新定义"正常"</title><link>https://genluo.github.io/my-blog/posts/life-reflections/</link><pubDate>Thu, 04 Jul 2024 20:23:30 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/life-reflections/</guid><description>&lt;h1 id="疫情后的生活思考重新定义正常">疫情后的生活思考：重新定义&amp;quot;正常&amp;quot;&lt;/h1>
 &lt;p>疫情已经逐渐远去，但它对我们生活的影响依然存在。这段特殊的经历让我对生活有了新的思考，今天想分享一些个人感悟。&lt;/p>
 &lt;h2 id="时间的价值">时间的价值&lt;/h2>
 &lt;p>疫情期间的居家隔离，让我第一次有了如此充裕的时间面对自己。没有了通勤的奔波，没有了社交的应酬，生活似乎回归到了最本真的状态。&lt;/p>
@@ -121,7 +121,7 @@ pie title 网站访问来源
 &lt;p>对我而言，新的&amp;quot;正常&amp;quot;应该包含更多有意义的时间分配，更真诚的人际关系，更健康的生活方式，以及面对不确定性时更从容的态度。&lt;/p>
 &lt;h2 id="结语">结语&lt;/h2>
 &lt;p>疫情改变了世界，也改变了我们每个人。但变化本身并无好坏，关键在于我们如何解读这些变化，如何从中学习和成长。&lt;/p>
-&lt;p>希望每个人都能在这场全球性的经历后，找到属于自己的生活智慧，创造更有意义的&amp;quot;新常态&amp;quot;。&lt;/p></description></item><item><title>我的Python学习之路：从零基础到项目实战</title><link>https://example.org/posts/programming-learning/</link><pubDate>Thu, 04 Jul 2024 20:22:30 +0800</pubDate><guid>https://example.org/posts/programming-learning/</guid><description>&lt;h1 id="我的python学习之路从零基础到项目实战">我的Python学习之路：从零基础到项目实战&lt;/h1>
+&lt;p>希望每个人都能在这场全球性的经历后，找到属于自己的生活智慧，创造更有意义的&amp;quot;新常态&amp;quot;。&lt;/p></description></item><item><title>我的Python学习之路：从零基础到项目实战</title><link>https://genluo.github.io/my-blog/posts/programming-learning/</link><pubDate>Thu, 04 Jul 2024 20:22:30 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/programming-learning/</guid><description>&lt;h1 id="我的python学习之路从零基础到项目实战">我的Python学习之路：从零基础到项目实战&lt;/h1>
 &lt;p>作为一名非计算机专业的学习者，我一年前开始自学Python编程。这篇文章记录了我的学习历程、遇到的困难以及一些有用的资源和建议，希望对同样想学习编程的朋友有所帮助。&lt;/p>
 &lt;h2 id="为什么选择python">为什么选择Python？&lt;/h2>
 &lt;p>在众多编程语言中，我选择Python作为第一门语言有几个原因：&lt;/p>
@@ -197,7 +197,7 @@ pie title 网站访问来源
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>tight_layout()
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>plt&lt;span style="color:#f92672">.&lt;/span>show()
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-个人博客网站">2. 个人博客网站&lt;/h3>
-&lt;p>使用Django框架开发了一个简单的博客网站，实现了文章发布、评论等功能。&lt;/p></description></item><item><title>《原子习惯》读书笔记：改变从微小习惯开始</title><link>https://example.org/posts/book-review/</link><pubDate>Thu, 04 Jul 2024 20:21:30 +0800</pubDate><guid>https://example.org/posts/book-review/</guid><description>&lt;h1 id="原子习惯读书笔记改变从微小习惯开始">《原子习惯》读书笔记：改变从微小习惯开始&lt;/h1>
+&lt;p>使用Django框架开发了一个简单的博客网站，实现了文章发布、评论等功能。&lt;/p></description></item><item><title>《原子习惯》读书笔记：改变从微小习惯开始</title><link>https://genluo.github.io/my-blog/posts/book-review/</link><pubDate>Thu, 04 Jul 2024 20:21:30 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/book-review/</guid><description>&lt;h1 id="原子习惯读书笔记改变从微小习惯开始">《原子习惯》读书笔记：改变从微小习惯开始&lt;/h1>
 &lt;p>最近读完了詹姆斯·克利尔（James Clear）的《原子习惯》，这本书给我带来了很多关于习惯养成的新思考。本文将分享我的读书心得。&lt;/p>
 &lt;h2 id="关于作者">关于作者&lt;/h2>
 &lt;p>詹姆斯·克利尔是一位知名的习惯养成专家，他的个人博客有数百万读者。《原子习惯》是他多年研究和实践的结晶。&lt;/p>
@@ -239,7 +239,7 @@ pie title 网站访问来源
 &lt;/ul>
 &lt;h2 id="总结">总结&lt;/h2>
 &lt;p>《原子习惯》是一本关于如何有效改变习惯的实用指南。它的核心理念是：通过专注于微小的改变和系统的力量，而不是结果，我们可以实现长期的积极变化。&lt;/p>
-&lt;p>如果你正在寻找改变生活的方法，这本书绝对值得一读。记住，习惯的力量不在于一次性的巨大转变，而在于日复一日的微小进步。&lt;/p></description></item><item><title>丽江古城：一次难忘的旅行体验</title><link>https://example.org/posts/travel-experience/</link><pubDate>Thu, 04 Jul 2024 20:20:30 +0800</pubDate><guid>https://example.org/posts/travel-experience/</guid><description>&lt;h1 id="丽江古城一次难忘的旅行体验">丽江古城：一次难忘的旅行体验&lt;/h1>
+&lt;p>如果你正在寻找改变生活的方法，这本书绝对值得一读。记住，习惯的力量不在于一次性的巨大转变，而在于日复一日的微小进步。&lt;/p></description></item><item><title>丽江古城：一次难忘的旅行体验</title><link>https://genluo.github.io/my-blog/posts/travel-experience/</link><pubDate>Thu, 04 Jul 2024 20:20:30 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/travel-experience/</guid><description>&lt;h1 id="丽江古城一次难忘的旅行体验">丽江古城：一次难忘的旅行体验&lt;/h1>
 &lt;p>上个月，我终于实现了多年的心愿，前往云南丽江旅行。这次旅程给我留下了深刻的印象，特别是丽江古城的独特魅力。&lt;/p>
 &lt;h2 id="古城风貌">古城风貌&lt;/h2>
 &lt;p>丽江古城，又名大研古镇，是中国为数不多保存完好的少数民族古城之一。漫步在青石板铺就的街道上，两旁是具有纳西族特色的建筑，古色古香，令人仿佛穿越到了古代。&lt;/p>
