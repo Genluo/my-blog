@@ -3,15 +3,20 @@ languageCode = 'zh-cn'
 title = '我的博客'
 theme = 'PaperMod'
 
+# 启用搜索和归档功能
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
 [params]
   defaultTheme = "dark"  # 设置为深色主题以匹配截图
   ShowReadingTime = true
   ShowShareButtons = true
   ShowPostNavLinks = true
   ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true  # 显示代码复制按钮
 
   [params.homeInfoParams]
-  Title = "我的个人博客"
+  Title = "Genluo's Blog"
   Content = """
 👋 欢迎来到我的个人博客！
 
@@ -20,6 +25,16 @@ theme = 'PaperMod'
 * 如果您喜欢这个主题，可以在 GitHub 上给它一个星⭐
 * 这个博客会分享我的个人经历、技术文章和有趣的见解
 """
+
+  # 启用搜索功能
+  [params.fuseOpts]
+    isCaseSensitive = false
+    shouldSort = true
+    location = 0
+    distance = 1000
+    threshold = 0.4
+    minMatchCharLength = 0
+    keys = ["title", "permalink", "summary", "content"]
 
   # 社交媒体链接
   [[params.socialIcons]]
@@ -60,7 +75,22 @@ theme = 'PaperMod'
     url = "/posts/"
     weight = 20
   [[menu.main]]
+    identifier = "archives"
+    name = "归档"
+    url = "/archives/"
+    weight = 30
+  [[menu.main]]
+    identifier = "search"
+    name = "搜索"
+    url = "/search/"
+    weight = 40
+  [[menu.main]]
+    identifier = "tags"
+    name = "标签"
+    url = "/tags/"
+    weight = 50
+  [[menu.main]]
     identifier = "about"
     name = "关于"
     url = "/about/"
-    weight = 30
+    weight = 60

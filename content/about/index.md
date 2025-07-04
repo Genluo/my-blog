@@ -15,4 +15,4 @@ draft = false
 ## 联系方式
 
 - 邮箱：<example@email.com>
-- GitHub：[我的GitHub主页](https://github.com/yourusername)
+- GitHub：[我的GitHub主页](https://github.com/genluo)
