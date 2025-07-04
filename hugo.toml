@@ -4,11 +4,39 @@ title = '我的博客'
 theme = 'PaperMod'
 
 [params]
-  defaultTheme = "auto"
+  defaultTheme = "dark"  # 设置为深色主题以匹配截图
   ShowReadingTime = true
   ShowShareButtons = true
   ShowPostNavLinks = true
   ShowBreadCrumbs = true
+
+  [params.homeInfoParams]
+  Title = "我的个人博客"
+  Content = """
+👋 欢迎来到我的个人博客！
+
+* 这个博客使用 **Hugo** 构建，采用 **PaperMod** 主题
+* PaperMod 是一个简洁、快速且响应式的主题，具有实用的功能
+* 如果您喜欢这个主题，可以在 GitHub 上给它一个星⭐
+* 这个博客会分享我的个人经历、技术文章和有趣的见解
+"""
+
+  # 社交媒体链接
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/Genluo"
+
+  [[params.socialIcons]]
+    name = "x"
+    url = "https://twitter.com/"
+
+  [[params.socialIcons]]
+    name = "discord"
+    url = "https://discord.com/"
+
+  [[params.socialIcons]]
+    name = "kofi"
+    url = "https://ko-fi.com/"
 
   # Mermaid配置
   [params.assets]
