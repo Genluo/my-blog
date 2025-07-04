@@ -1,81 +1,80 @@
 baseURL = 'https://genluo.github.io/my-blog/'
 languageCode = 'zh-cn'
-title = '我的博客'
+title = "Genluo"
 theme = 'PaperMod'
 
 # 启用搜索和归档功能
 [outputs]
-  home = ["HTML", "RSS", "JSON"]
+home = ["HTML", "RSS", "JSON"]
 
 [params]
-  defaultTheme = "dark"  # 设置为深色主题以匹配截图
-  ShowReadingTime = true
-  ShowShareButtons = true
-  ShowPostNavLinks = true
-  ShowBreadCrumbs = true
-  ShowCodeCopyButtons = true  # 显示代码复制按钮
+defaultTheme = "auto"      # 设置为深色主题以匹配截图
+ShowReadingTime = true
+ShowShareButtons = true
+ShowPostNavLinks = true
+ShowBreadCrumbs = true
+ShowCodeCopyButtons = true # 显示代码复制按钮
+title = "Genluo's Blog"
+showWordCount = true
+showtoc = true
 
-  [params.homeInfoParams]
-  Title = "Genluo's Blog"
-  Content = """
+[params.homeInfoParams]
+Title = "Genluo's Blog"
+Content = """
 👋 欢迎来到我的个人博客！
-
-* 这个博客使用 **Hugo** 构建，采用 **PaperMod** 主题
-* PaperMod 是一个简洁、快速且响应式的主题，具有实用的功能
-* 如果您喜欢这个主题，可以在 GitHub 上给它一个星⭐
 * 这个博客会分享我的个人经历、技术文章和有趣的见解
 """
 
-  # 优化搜索功能，防止重复结果
-  [params.fuseOpts]
-    isCaseSensitive = false
-    shouldSort = true
-    location = 0
-    distance = 1000
-    threshold = 0.4
-    minMatchCharLength = 0
-    keys = ["title", "permalink", "summary"]  # 从keys中移除"content"以防止重复索引同一文章中的多个部分
+# 优化搜索功能，防止重复结果
+[params.fuseOpts]
+isCaseSensitive = false
+shouldSort = true
+location = 0
+distance = 1000
+threshold = 0.4
+minMatchCharLength = 0
+keys = ["title", "permalink", "summary"] # 从keys中移除"content"以防止重复索引同一文章中的多个部分
 
-  # 社交媒体链接
-  [[params.socialIcons]]
-    name = "github"
-    url = "https://github.com/Genluo"
+# 社交媒体链接
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/Genluo"
 
-  [[params.socialIcons]]
-    name = "x"
-    url = "https://twitter.com/"
+[[params.socialIcons]]
+name = "x"
+url = "https://twitter.com/"
 
-  [[params.socialIcons]]
-    name = "discord"
-    url = "https://discord.com/"
+[[params.socialIcons]]
+name = "discord"
+url = "https://discord.com/"
 
-  [[params.socialIcons]]
-    name = "kofi"
-    url = "https://ko-fi.com/"
+[[params.socialIcons]]
+name = "kofi"
+url = "https://ko-fi.com/"
 
-  # 资源配置
-  [params.assets]
-    disableHLJS = false
-    disableFingerprinting = true
+# 资源配置
+[params.assets]
+disableHLJS = false
+disableFingerprinting = true
 
 [menu]
-  [[menu.main]]
-    identifier = "archives"
-    name = "归档"
-    url = "/archives/"
-    weight = 10
-  [[menu.main]]
-    identifier = "search"
-    name = "搜索"
-    url = "/search/"
-    weight = 20
-  [[menu.main]]
-    identifier = "tags"
-    name = "标签"
-    url = "/tags/"
-    weight = 30
-  [[menu.main]]
-    identifier = "about"
-    name = "关于"
-    url = "/about/"
-    weight = 40
+[[menu.main]]
+identifier = "archives"
+name = "归档"
+url = "/archives/"
+weight = 10
+[[menu.main]]
+identifier = "search"
+name = "搜索"
+url = "/search/"
+weight = 20
+[[menu.main]]
+identifier = "tags"
+name = "标签"
+url = "/tags/"
+weight = 30
+[[menu.main]]
+identifier = "about"
+name = "关于"
+url = "/about/"
+weight = 40
