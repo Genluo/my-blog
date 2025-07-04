@@ -1,4 +1,4 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://genluo.github.io/my-blog/'
 languageCode = 'zh-cn'
 title = '我的博客'
 theme = 'PaperMod'
