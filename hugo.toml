@@ -26,7 +26,7 @@ theme = 'PaperMod'
 * 这个博客会分享我的个人经历、技术文章和有趣的见解
 """
 
-  # 启用搜索功能
+  # 优化搜索功能，防止重复结果
   [params.fuseOpts]
     isCaseSensitive = false
     shouldSort = true
@@ -34,7 +34,7 @@ theme = 'PaperMod'
     distance = 1000
     threshold = 0.4
     minMatchCharLength = 0
-    keys = ["title", "permalink", "summary", "content"]
+    keys = ["title", "permalink", "summary"]  # 从keys中移除"content"以防止重复索引同一文章中的多个部分
 
   # 社交媒体链接
   [[params.socialIcons]]
