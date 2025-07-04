@@ -41,29 +41,24 @@ emperor4((朱高炽))--长子--&amp;gt;emperor3
 &lt;/ul></description></item><item><title>Mermaid图表测试</title><link>https://genluo.github.io/my-blog/posts/mermaid-test/</link><pubDate>Thu, 04 Jul 2024 20:30:00 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/mermaid-test/</guid><description>&lt;h1 id="mermaid图表测试">Mermaid图表测试&lt;/h1>
 &lt;p>本文展示如何在Hugo博客中使用Mermaid图表。&lt;/p>
 &lt;h2 id="流程图示例">流程图示例&lt;/h2>
-&lt;div class="mermaid">
-flowchart TD
-A[开始] --> B{是否已配置?}
-B -->|是| C[继续执行]
-B -->|否| D[配置环境]
-D --> C
-C --> E[完成]
-&lt;/div>
-&lt;h2 id="时序图示例">时序图示例&lt;/h2>
-&lt;div class="mermaid">
-sequenceDiagram
+&lt;pre tabindex="0">&lt;code class="language-mermaid" data-lang="mermaid">flowchart TD
+A[开始] --&amp;gt; B{是否已配置?}
+B --&amp;gt;|是| C[继续执行]
+B --&amp;gt;|否| D[配置环境]
+D --&amp;gt; C
+C --&amp;gt; E[完成]
+&lt;/code>&lt;/pre>&lt;h2 id="时序图示例">时序图示例&lt;/h2>
+&lt;pre tabindex="0">&lt;code class="language-mermaid" data-lang="mermaid">sequenceDiagram
 participant 浏览器
 participant 服务器
-浏览器->>服务器: 请求页面
-服务器-->>浏览器: 返回HTML
-浏览器->>服务器: 请求CSS/JS
-服务器-->>浏览器: 返回CSS/JS
-浏览器->>服务器: 请求数据API
-服务器-->>浏览器: 返回JSON数据
-&lt;/div>
-&lt;h2 id="类图示例">类图示例&lt;/h2>
-&lt;div class="mermaid">
-classDiagram
+浏览器-&amp;gt;&amp;gt;服务器: 请求页面
+服务器--&amp;gt;&amp;gt;浏览器: 返回HTML
+浏览器-&amp;gt;&amp;gt;服务器: 请求CSS/JS
+服务器--&amp;gt;&amp;gt;浏览器: 返回CSS/JS
+浏览器-&amp;gt;&amp;gt;服务器: 请求数据API
+服务器--&amp;gt;&amp;gt;浏览器: 返回JSON数据
+&lt;/code>&lt;/pre>&lt;h2 id="类图示例">类图示例&lt;/h2>
+&lt;pre tabindex="0">&lt;code class="language-mermaid" data-lang="mermaid">classDiagram
 class Animal {
 +String name
 +int age
@@ -75,12 +70,10 @@ class Dog {
 class Cat {
 +climb()
 }
-Animal &lt;|-- Dog
-Animal &lt;|-- Cat
-&lt;/div>
-&lt;h2 id="甘特图示例">甘特图示例&lt;/h2>
-&lt;div class="mermaid">
-gantt
+Animal &amp;lt;|-- Dog
+Animal &amp;lt;|-- Cat
+&lt;/code>&lt;/pre>&lt;h2 id="甘特图示例">甘特图示例&lt;/h2>
+&lt;pre tabindex="0">&lt;code class="language-mermaid" data-lang="mermaid">gantt
 title 项目开发计划
 dateFormat YYYY-MM-DD
 section 设计阶段
@@ -91,16 +84,13 @@ section 开发阶段
 测试 : dev2, after dev1, 10d
 section 发布阶段
 部署上线 : rel1, after dev2, 2d
-&lt;/div>
-&lt;h2 id="饼图示例">饼图示例&lt;/h2>
-&lt;div class="mermaid">
-pie title 网站访问来源
-"搜索引擎" : 45.2
-"社交媒体" : 30.5
-"直接访问" : 15.3
-"其他" : 9.0
-&lt;/div>
-&lt;h2 id="使用说明">使用说明&lt;/h2>
+&lt;/code>&lt;/pre>&lt;h2 id="饼图示例">饼图示例&lt;/h2>
+&lt;pre tabindex="0">&lt;code class="language-mermaid" data-lang="mermaid">pie title 网站访问来源
+&amp;#34;搜索引擎&amp;#34; : 45.2
+&amp;#34;社交媒体&amp;#34; : 30.5
+&amp;#34;直接访问&amp;#34; : 15.3
+&amp;#34;其他&amp;#34; : 9.0
+&lt;/code>&lt;/pre>&lt;h2 id="使用说明">使用说明&lt;/h2>
 &lt;p>要在Hugo博客中使用Mermaid图表，需要：&lt;/p></description></item><item><title>疫情后的生活思考：重新定义"正常"</title><link>https://genluo.github.io/my-blog/posts/life-reflections/</link><pubDate>Thu, 04 Jul 2024 20:23:30 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/life-reflections/</guid><description>&lt;h1 id="疫情后的生活思考重新定义正常">疫情后的生活思考：重新定义&amp;quot;正常&amp;quot;&lt;/h1>
 &lt;p>疫情已经逐渐远去，但它对我们生活的影响依然存在。这段特殊的经历让我对生活有了新的思考，今天想分享一些个人感悟。&lt;/p>
 &lt;h2 id="时间的价值">时间的价值&lt;/h2>
