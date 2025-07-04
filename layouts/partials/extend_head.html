@@ -1,0 +1,17 @@
+<!-- 添加Mermaid支持 -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    mermaid.init({
+      theme: 'dark'  // 使用深色主题以便在黑色背景下更清晰
+    }, '.language-mermaid');
+  });
+</script>
+<style>
+  /* 为Mermaid图表添加基本样式 */
+  .language-mermaid {
+    background-color: #333;
+    border-radius: 6px;
+    padding: 10px;
+  }
+</style>
