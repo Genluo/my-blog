@@ -1,88 +1,92 @@
-# 我的博客
+# Genluo的个人博客
 
-这是基于 [Hugo](https://gohugo.io/) 构建的个人博客项目，使用了 [PaperMod](https://github.com/adityatelange/hugo-PaperMod) 主题。
+这是一个基于Hugo框架和PaperMod主题的个人博客项目，用于分享个人经历、技术文章和见解。
 
-## 功能特点
+## 项目特点
 
-- 响应式设计，适配各种设备
-- 支持明/暗模式自动切换
-- 文章阅读时间显示
-- 文章分享按钮
-- 文章导航链接
-- 面包屑导航
-- 支持 Mermaid 图表绘制
+- 🚀 基于Hugo静态网站生成器，高效快速
+- 🎨 使用PaperMod主题，简洁美观
+- 🔍 内置搜索功能，方便查找内容
+- 📂 文章归档功能，便于内容管理
+- 🏷️ 标签系统，便于内容分类
+- 📱 响应式设计，适配各种设备
+- 🌓 支持自动/深色/浅色主题切换
+- 📊 阅读时间和字数统计
 
-## 快速开始
+## 技术栈
+
+- [Hugo](https://gohugo.io/) - 静态网站生成器
+- [PaperMod](https://github.com/adityatelange/hugo-PaperMod) - 主题
+
+## 开始使用
 
 ### 前提条件
 
-- 安装 [Hugo](https://gohugo.io/installation/)（推荐使用最新版本）
+- 安装 [Hugo](https://gohugo.io/installation/)（推荐使用扩展版本）
 - Git
 
-### 本地运行
+### 本地开发
 
-1. 克隆此仓库
-   ```bash
-   git clone --recursive https://github.com/yourusername/my-blog.git
-   cd my-blog
-   ```
+1. 克隆仓库：
 
-2. 启动本地服务器
-   ```bash
-   hugo server -D
-   ```
+```bash
+git clone https://github.com/Genluo/my-blog.git
+cd my-blog
+```
 
-3. 在浏览器中访问 `http://localhost:1313/` 查看博客
+2. 初始化子模块（主题）：
 
-### 添加新文章
+```bash
+git submodule update --init --recursive
+```
+
+3. 启动本地开发服务器：
+
+```bash
+hugo server -D
+```
+
+4. 在浏览器中访问 `http://localhost:1313/my-blog/` 预览博客
+
+### 创建新文章
 
 ```bash
 hugo new content/posts/my-new-post.md
 ```
 
-然后编辑新创建的文件，添加您的内容。
-
-## 项目结构
-
-```
-my-blog/
-├── archetypes/        # 新内容的模板
-├── assets/            # 需要处理的资源文件
-├── content/           # 所有内容文件
-│   ├── posts/         # 博客文章
-│   └── about/         # 关于页面
-├── data/              # 配置文件和数据文件
-├── i18n/              # 国际化文件
-├── layouts/           # 布局模板
-├── public/            # 生成的静态网站（执行 hugo 命令后生成）
-├── static/            # 静态文件，直接复制到 public/ 目录
-├── themes/            # 主题文件
-│   └── PaperMod/      # PaperMod 主题
-└── hugo.toml          # Hugo 配置文件
-```
-
-## 部署
-
-构建静态网站：
+### 构建静态网站
 
 ```bash
 hugo --minify
 ```
 
-生成的网站将位于 `public/` 目录中，您可以将此目录部署到任何静态网站托管服务，如 GitHub Pages、Netlify、Vercel 等。
+构建后的静态文件会生成在 `public/` 目录下。
+
+## 部署
+
+本项目配置为通过GitHub Actions自动部署到GitHub Pages。每次推送到主分支时，会自动构建并部署网站。
+
+## 目录结构
+
+```
+my-blog/
+├── archetypes/        # 文章模板
+├── content/           # 博客内容
+│   ├── posts/         # 博文
+│   ├── archives/      # 归档页
+│   ├── search/        # 搜索页
+│   └── about/         # 关于页
+├── layouts/           # 自定义布局
+├── static/            # 静态资源
+├── themes/            # 主题
+│   └── PaperMod/      # PaperMod主题
+└── hugo.toml          # Hugo配置文件
+```
 
 ## 自定义
 
-- 修改 `hugo.toml` 文件以更新网站配置
-- 在 `content/` 目录中添加或修改内容
-- 在 `static/` 目录中添加静态资源文件
-- 自定义主题可以修改 `layouts/` 目录中的模板
+您可以通过修改 `hugo.toml` 文件自定义博客的各种设置，包括标题、描述、社交媒体链接等。
 
 ## 许可证
 
-此项目采用 [MIT 许可证](LICENSE)。
-
-## 致谢
-
-- [Hugo](https://gohugo.io/) - 静态网站生成器
-- [PaperMod](https://github.com/adityatelange/hugo-PaperMod) - Hugo主题
+[MIT](LICENSE)
