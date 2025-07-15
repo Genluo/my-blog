@@ -1,0 +1,24 @@
+{{ $src := .Get "src" }}
+{{ $type := .Get "type" | default "video/mp4" }}
+{{ $width := .Get "width" | default "100%" }}
+{{ $height := .Get "height" | default "auto" }}
+{{ $autoplay := .Get "autoplay" | default false }}
+{{ $loop := .Get "loop" | default false }}
+{{ $muted := .Get "muted" | default false }}
+{{ $controls := .Get "controls" | default true }}
+{{ $preload := .Get "preload" | default "metadata" }}
+{{ $class := .Get "class" | default "" }}
+
+<video
+    {{ with $width }}width="{{ . }}"{{ end }}
+    {{ with $height }}height="{{ . }}"{{ end }}
+    {{ if $controls }}controls{{ end }}
+    {{ if $autoplay }}autoplay{{ end }}
+    {{ if $loop }}loop{{ end }}
+    {{ if $muted }}muted{{ end }}
+    preload="{{ $preload }}"
+    {{ with $class }}class="{{ . }}"{{ end }}
+>
+    <source src="{{ $src }}" type="{{ $type }}">
+    您的浏览器不支持视频标签。
+</video>
