@@ -22,11 +22,11 @@ title = 'Augment 试用'
 ## 任务规划
 
 提供了任务规划，可以让用户手动指定相关任务列表，并且后续能够将本次编辑的任务导出进行保存，后续可以二次进行使用
-![alt text](../../static/img/image2.png)
+![alt text](../../static/img/image-1.png)
 
 同理，针对起他通用的agent 任务，augment 也会进行任务拆分，然后逐个实现，只不过这里提供了一个窗口，可以让用户指定任务列表，这针对于用户想要自己创建固定的任务流程是非常有用的
 
-## 图标展示
+## 图表展示
 
 不知道为什么，感觉 augment 针对 mermaid 的图标进行了展示优化，看起来比较舒服，如果能够再加一个全屏展示会更好
 ![alt text](../../static/img/image3.png)
@@ -34,4 +34,4 @@ title = 'Augment 试用'
 ## 提示词优化
 
 可以先编写简短或不完整的提示，然后使用提示增强从代码库中添加相关的参考、结构和约定，以便在发送提示之前对其进行改进。这个非常好用
-![alt text](../../static/img/image4.png)
+![alt text](../../static/img/image-2.png)
