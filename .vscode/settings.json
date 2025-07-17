@@ -1,0 +1,6 @@
+{
+	"cSpell.words": ["adityatelange"],
+	"markdown.copyFiles.destination": {
+		"**/*.md": "${documentWorkspaceFolder}/static/img/"
+	}
+}
