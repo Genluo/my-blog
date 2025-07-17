@@ -1,0 +1,38 @@
+{{- $src := .Destination -}}
+
+{{- /* 处理静态路径转换 */ -}}
+{{- if hasPrefix $src "../../static/" -}}
+  {{- $src = strings.Replace $src "../../static/" "/" 1 -}}
+  {{- $src = printf "%s%s" (strings.TrimSuffix "/" .Page.Site.BaseURL) $src -}}
+{{- else if hasPrefix $src "/static/" -}}
+  {{- $src = strings.Replace $src "/static/" "/" 1 -}}
+  {{- $src = printf "%s%s" (strings.TrimSuffix "/" .Page.Site.BaseURL) $src -}}
+{{- else if hasPrefix $src "../static/" -}}
+  {{- $src = strings.Replace $src "../static/" "/" 1 -}}
+  {{- $src = printf "%s%s" (strings.TrimSuffix "/" .Page.Site.BaseURL) $src -}}
+{{- else -}}
+  {{- /* 保持原有的资源处理逻辑 */ -}}
+  {{- $u := urls.Parse .Destination -}}
+  {{- $src = $u.String -}}
+  {{- if not $u.IsAbs -}}
+    {{- $path := strings.TrimPrefix "./" $u.Path }}
+    {{- with or (.PageInner.Resources.Get $path) (resources.Get $path) -}}
+      {{- $src = .RelPermalink -}}
+      {{- with $u.RawQuery -}}
+        {{- $src = printf "%s?%s" $src . -}}
+      {{- end -}}
+      {{- with $u.Fragment -}}
+        {{- $src = printf "%s#%s" $src . -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $attributes := merge .Attributes (dict "alt" .Text "src" $src "title" (.Title | transform.HTMLEscape) "loading" "lazy") -}}
+<img
+  {{- range $k, $v := $attributes -}}
+    {{- if $v -}}
+      {{- printf " %s=%q" $k $v | safeHTMLAttr -}}
+    {{- end -}}
+  {{- end -}}>
+{{- /**/ -}}
