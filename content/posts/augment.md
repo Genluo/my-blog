@@ -1,6 +1,6 @@
 +++
 date = '2025-07-17T11:35:06+08:00'
-draft = true
+draft = false
 title = 'Augment 试用'
 +++
 
