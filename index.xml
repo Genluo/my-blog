@@ -120,12 +120,16 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 到达终止状态
 &lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="子状态机">子状态机&lt;/h3>
-&lt;p>子状态机是一种嵌套状态机机制，允许在一个主状态内部有自己的状态转换逻辑。这对于构建复杂的分层状态行为非常有用&lt;/p></description></item><item><title>关于我</title><link>https://genluo.github.io/my-blog/about/</link><pubDate>Fri, 04 Jul 2025 20:13:21 +0800</pubDate><guid>https://genluo.github.io/my-blog/about/</guid><description>&lt;h2 id="关于本站">关于本站&lt;/h2>
-&lt;p>这是我的个人博客网站，使用Hugo构建。在这里，我会分享我的想法、经验和学习心得。&lt;/p>
-&lt;h2 id="关于我">关于我&lt;/h2>
-&lt;p>我是一名技术爱好者，对编程和新技术充满热情。欢迎与我交流！&lt;/p>
+&lt;p>子状态机是一种嵌套状态机机制，允许在一个主状态内部有自己的状态转换逻辑。这对于构建复杂的分层状态行为非常有用&lt;/p></description></item><item><title>关于我</title><link>https://genluo.github.io/my-blog/about/</link><pubDate>Fri, 04 Jul 2025 20:13:21 +0800</pubDate><guid>https://genluo.github.io/my-blog/about/</guid><description>&lt;h2 id="关于我">关于我&lt;/h2>
+&lt;p>喜欢折腾，作为PC 网页，也做过移动端网页，也做过移动端游戏，也尝试过 Vision Pro 上的游戏开发，专注用户交互，常用工具箱：&lt;/p>
+&lt;ul>
+&lt;li>语言：TypeScript、C++&lt;/li>
+&lt;li>框架：React、NestJs&lt;/li>
+&lt;li>运行时：Node.js、Chrome/浏览器、visionOS&lt;/li>
+&lt;li>标准：webGPU、WebAssembly、&lt;/li>
+&lt;/ul>
 &lt;h2 id="联系方式">联系方式&lt;/h2>
 &lt;ul>
-&lt;li>邮箱：&lt;a href="mailto:example@email.com">example@email.com&lt;/a>&lt;/li>
+&lt;li>邮箱：&lt;a href="mailto:isgenluo@gmail.com">isgenluo@gmail.com&lt;/a>&lt;/li>
 &lt;li>GitHub：&lt;a href="https://github.com/genluo">我的GitHub主页&lt;/a>&lt;/li>
 &lt;/ul></description></item></channel></rss>
