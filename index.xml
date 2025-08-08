@@ -1,4 +1,17 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Genluo</title><link>https://genluo.github.io/my-blog/</link><description>Recent content on Genluo</description><generator>Hugo -- 0.148.2</generator><language>zh-cn</language><lastBuildDate>Mon, 28 Jul 2025 16:13:52 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/index.xml" rel="self" type="application/rss+xml"/><item><title>如何写出高质量的 Prompt</title><link>https://genluo.github.io/my-blog/posts/prompt/</link><pubDate>Mon, 28 Jul 2025 16:13:52 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/prompt/</guid><description>&lt;p>整个 AI Agent 的开发流程中，编写高质量的 Prompt 非常重要，目前总结了一些 writing prompt 的技巧，可以作为后续的参考&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Genluo</title><link>https://genluo.github.io/my-blog/</link><description>Recent content on Genluo</description><generator>Hugo -- 0.148.2</generator><language>zh-cn</language><lastBuildDate>Fri, 08 Aug 2025 17:41:50 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Vscode+clangd</title><link>https://genluo.github.io/my-blog/posts/vscode+clangd/</link><pubDate>Fri, 08 Aug 2025 17:41:50 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/vscode+clangd/</guid><description>&lt;h2 id="基本配置">基本配置&lt;/h2>
+&lt;p>一般来说，&lt;code>vscode&lt;/code> 中开发 &lt;code>c++&lt;/code> 项目使用的都是微软提供的插件，但是这个插件不是很好用，推荐使用 &lt;code>clangd&lt;/code> ，相比于微软的插件来说，错误的提示更好点，同时速度要快很多&lt;/p>
+&lt;h3 id="基础配置">基础配置&lt;/h3>
+&lt;p>如果使用 &lt;code>cmake&lt;/code> 进行开发，可以添加编译参数 &lt;code>-DCMAKE_EXPORT_COMPILE_COMMANDS=ON&lt;/code> 来生成 &lt;code>clangd&lt;/code> 需要的 &lt;code>compile_commands.json&lt;/code> 来索引整个项目的源文件&lt;/p>
+&lt;p>通过 &lt;code>cmake&lt;/code> 进行配置生成，包含
+&lt;img loading="lazy" src="https://genluo.github.io/my-blog/img/image-3.png">&lt;/p>
+&lt;h3 id="bear-工具介绍">&lt;a href="https://github.com/rizsotto/Bear">bear&lt;/a> 工具介绍&lt;/h3>
+&lt;blockquote>
+&lt;p>generates a compilation database for clang tooling.&lt;/p>&lt;/blockquote>
+&lt;p>如果使用的是其他的构建系统，没有使用 &lt;code>cmake&lt;/code> 可以使用这个工具，生成对应的 &lt;code>compile_commands.json&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>bear -- make
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-4.png">&lt;/p>
+&lt;p>重启服务之后，可以正常进行跳转&lt;/p>
+&lt;p>&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-5.png">&lt;/p></description></item><item><title>如何写出高质量的 Prompt</title><link>https://genluo.github.io/my-blog/posts/prompt/</link><pubDate>Mon, 28 Jul 2025 16:13:52 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/prompt/</guid><description>&lt;p>整个 AI Agent 的开发流程中，编写高质量的 Prompt 非常重要，目前总结了一些 writing prompt 的技巧，可以作为后续的参考&lt;/p>
 &lt;h2 id="要点">要点&lt;/h2>
 &lt;ul>
 &lt;li>内容需要详细，不要概括笼统，月具体越好&lt;/li>
