@@ -16,6 +16,14 @@ ReaderWriterQueue 是一个高性能的C++无锁队列实现，专为单生产�
 
 适用于需要在两个线程间高效传递数据的场景，如生产者-消费者模式、异步任务处理等。仅需包含头文件即可使用，无需额外依赖
 
+## 类图
+
+```mermaid
+
+#endif
+
+```
+
 ## 跨平台
 
 ## 测试
@@ -30,7 +38,172 @@ ReaderWriterQueue 是一个高性能的C++无锁队列实现，专为单生产�
 
 ## 问题
 
-### false sharing 问题
+### 1. false sharing 问题
+
+伪共享是指两个或多个CPU核心频繁访问同一缓存行中的不同数据，导致缓存行在不同核心之间不断传递，造成性能下降的现象。
+
+```txt
+缓存行（64字节）：[变量A][变量B][其他数据...]
+                 ↑      ↑
+              核心1访问  核心2访问
+```
+
+虽然核心1只访问变量A，核心2只访问变量B，但因为它们在同一缓存行中：
+
+核心1修改变量A → 整个缓存行失效
+核心2访问变量B → 需要重新加载缓存行
+核心2修改变量B → 核心1的缓存行失效
+核心1再次访问变量A → 又需要重新加载
+
+#### 避免伪共享
+
+使用 cachelineFiller0 将 front 和 tail 分隔到不同缓存行，生产者线程主要访问的 tail 和消费者线程主要访问的 front 不会相互干扰
+
+```cpp
+struct Block {
+    weak_atomic<size_t> front;    // 消费者主要访问
+    size_t localTail;             // 消费者拥有
+
+    // 缓存行填充 - 确保下面的变量在不同缓存行
+    char cachelineFiller0[MOODYCAMEL_CACHE_LINE_SIZE - sizeof(weak_atomic<size_t>) - sizeof(size_t)];
+
+    weak_atomic<size_t> tail;     // 生产者主要访问
+    size_t localFront;            // 生产者拥有
+
+    // 再次填充
+    char cachelineFiller1[MOODYCAMEL_CACHE_LINE_SIZE - sizeof(weak_atomic<size_t>) - sizeof(size_t)];
+
+    weak_atomic<Block*> next;
+    // ...
+};
+```
+
+### 2. 编译器重排序问题
+
+- 指令重排序
+- 内粗访问重新排序
+- 循环优化重排序
+
+#### 问题示例
+
+- 数据竞争：data 和 ready 没有同步保护，同时被多个线程访问
+- 内存重排序：编译器/CPU可能重排序指令，ready = true 可能在 data = 42之前执行
+- 可见性问题：一个线程的写操作可能不会立即对另一个线程可见
+
+> 编译器可能将producer中的指令重排序为：
+// ready = true;   // 被提前！
+// data = 42;// 被延后！
+// 这会导致消费者读取到错误的data值
+
+```cpp
+#include <thread>
+#include <iostream>
+
+int data = 0;
+bool ready = false;
+
+// 线程1：生产者
+void producer() {
+    data = 42;// Step 1
+    ready = true;   // Step 2
+}
+
+// 线程2：消费者
+void consumer() {
+    while (!ready) {
+        // 等待
+    }
+    std::cout << "Data: " << data << std::endl;  // 期望输出42
+}
+```
+
+#### 解决编译器重排序问题
+
+- 使用 volatile
+
+```cpp
+volatile int flag = 0;
+int data = 0;
+
+void producer() {
+    data = 42;
+    flag = 1;  // volatile 防止重排序
+}
+
+void consumer() {
+    while (flag ==0) {  // volatile 防止优化
+        // 等待
+    }
+    printf("Data: %d\n", data);
+}
+```
+
+- 使用 内存屏障
+
+```cpp
+#include <atomic>
+
+int data = 0;
+bool ready = false;
+
+void producer() {
+    data = 42;
+    std::atomic_signal_fence(std::memory_order_release);  // 编译器屏障
+    ready = true;
+}
+
+void consumer() {
+    while (!ready) {std::atomic_signal_fence(std::memory_order_acquire);  // 编译器屏障
+    }
+    printf("Data: %d\n", data);
+}
+```
+
+- 使用原子操作
+
+```cpp
+#include <atomic>
+
+int data = 0;
+std::atomic<bool> ready{false};
+
+void producer() {
+    data = 42;
+    ready.store(true, std::memory_order_release);  // 防止重排序
+}
+
+void consumer() {
+    while (!ready.load(std::memory_order_acquire)) {
+        // 等待
+    }
+    printf("Data: %d\n", data);  // 保证读取到正确值
+}
+```
+
+#### 编译器重排序&CPU重排序
+
+| 特性 | 编译器重排序 | CPU重排序 |
+|------|-------------|----------|
+| 发生时机 | 编译时 | 运行时 |
+| 影响范围 | 所有平台 | 特定CPU架构 |
+| 防护方法 | 编译器屏障 |内存屏障指令 |
+| 性能影响 | 编译时优化 | 运行时开销 |
+
+#### 实践
+
+- 单线程通常不用关心，但是多线程需要关系这个问题
+
+### 3. 信号量
+
+- 在 Apple iOS and OSX 平台上选用 Mach 信号量的原因：
+  - <http://lists.apple.com/archives/darwin-kernel/2009/Apr/msg00010.html>
+
+### 4. 内存对齐
+
+内存对齐是指数据在内存中的存储位置必须是某个特定数值的倍数。例如，一个4字节的整数可能需要存储在地址为4的倍数的位置上。
+
+- 对齐的数据可以一次读取，不对其可能需要多次
+- 对齐的数据更容易命中缓存
 
 ## 参考
 
