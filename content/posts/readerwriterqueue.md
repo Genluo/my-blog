@@ -31,6 +31,64 @@ ReaderWriterQueue 是一个高性能的C++无锁队列实现，专为单生产�
 - 单元测试
 - 稳定性测试
 
+### CRTP 设计模式
+
+> 通过 CRTP，基类可以调用派生类的方法，实现了静态多态，在这个项目中是这样使用
+>
+#### 核心思想
+
+1. "派生类告诉基类自己是谁" - 通过模板参数传递自身类型
+2. 静态多态 - 编译时确定调用关系，无运行时开销
+3. 类型安全 - 编译时检查，避免类型错误
+
+#### 优势
+
+- 零运行时开销
+- 编译时类型检查
+- 代码复用
+- 接口统一
+
+#### 示例
+
+- 基础示例
+
+```cpp
+// CRTP 方法
+template <typename Derived>
+class CRTPBase {
+public:
+  int calculate() { return static_cast<Derived *>(this)->calculate_impl(); }
+};
+
+class CRTPDerived : public CRTPBase<CRTPDerived> {
+public:
+  int calculate_impl() { return 42; }
+};
+
+```
+
+- 测试用例
+
+```cpp
+#define REGISTER_TEST(testName) registerTest(#testName, &subclass_t::testName)
+
+template <typename TSubclass> class TestClass {
+public:
+  typedef TSubclass subclass_t;
+  void registerTest(const char *name, bool (subclass_t::*method)());
+};
+
+class Test : public TestClass<Test> {
+public:
+  Test() {
+    REGISTER_TEST(test1);
+    REGISTER_TEST(test2);
+  }
+  bool test1();
+  bool test2();
+};
+```
+
 ## 性能
 
 - benchmarks
