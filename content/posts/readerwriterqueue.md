@@ -36,7 +36,7 @@ auto size = sizeof(Block) + std::alignment_of<Block>::value - 1;
 size += sizeof(T) * capacity + std::alignment_of<T>::value - 1;
 ```
 
-针对申请的内容，实际分配内存进行对其
+针对申请的内容，实际分配内存进行指针对齐
 
 ```cpp
 auto newBlockRaw = static_cast<char *>(std::malloc(size));
@@ -53,12 +53,15 @@ static AE_FORCEINLINE char *align_for(char *ptr) AE_NO_TSAN {
   }
 ```
 
-为什么这个过程中需要内存对其，可以看下下面的问题部分
+为什么这个过程中需要内存对其，可以看下下面的问题部分，这样对齐之后可以保证：
+
+- Block 对象的内存访问是高效的
+- 存储在队列中的 T 类型元素也能获得最佳的内存访问性能
+- 避免因为未对齐访问导致的性能损失或在某些架构上的崩溃
 
 ### 3. 如何使用
 
 ![alt text](../../static/img/E49BA05E-A04F-4D9C-A5D5-44A3EC8CF5D9.jpeg)
-
 
 ## 测试
 
