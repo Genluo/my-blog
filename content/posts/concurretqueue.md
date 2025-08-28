@@ -1,7 +1,9 @@
 +++
 date = '2025-08-25T10:28:00+08:00'
 draft = true
-title = 'Concurretqueue'
+title = 'Concurretqueue 源码阅读'
+tags = ['源码', 'cpp']
+description="本文主要记录阅读 Concurretqueue 源码过程中的一些相关想法和启发"
 +++
 
 

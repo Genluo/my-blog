@@ -2,7 +2,7 @@
 date = '2025-08-11T20:18:21+08:00'
 draft = false
 title = 'Readerwriterqueue 源代码阅读'
-tag = ['cpp', '研究']
+tags = ['cpp', '源码']
 +++
 
 [ReaderWriterQueue](https://github.com/cameron314/readerwriterqueue) 是一个高性能的 C++无锁队列实现，专为单生产者-单消费者（SPSC）场景设计。

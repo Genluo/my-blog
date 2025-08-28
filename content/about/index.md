@@ -8,6 +8,8 @@ draft = false
 
 做过 PC web开发、mobile web开发、 web游戏开发，也尝试过 Apple Vision Pro 上的游戏开发，专注用户交互，梦想是做出**性能强劲**，用户**体验优异**，能产生业务价值的产品
 
+![alt text](../../static/img/image-6.png)
+
 ### 常用工具箱
 
 - 语言：TypeScript、C++
