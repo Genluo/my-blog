@@ -1,51 +1,51 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>AI on Genluo</title><link>https://genluo.github.io/my-blog/tags/ai/</link><description>Recent content in AI on Genluo</description><generator>Hugo -- 0.148.2</generator><language>zh-cn</language><lastBuildDate>Mon, 28 Jul 2025 16:13:52 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>如何写出高质量的 Prompt</title><link>https://genluo.github.io/my-blog/posts/prompt/</link><pubDate>Mon, 28 Jul 2025 16:13:52 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/prompt/</guid><description>&lt;p>整个 AI Agent 的开发流程中，编写高质量的 Prompt 非常重要，目前总结了一些 writing prompt 的技巧，可以作为后续的参考&lt;/p>
-&lt;h2 id="要点">要点&lt;/h2>
-&lt;ul>
-&lt;li>内容需要详细，不要概括笼统，月具体越好&lt;/li>
-&lt;li>让模型充当一个角色，让其更加专业和明确&lt;/li>
-&lt;li>使用分割符来区分输出的不同部分&lt;/li>
-&lt;li>指定任务完成的步骤，将复杂任务简化&lt;/li>
-&lt;li>提供示例，给模型进行参考&lt;/li>
-&lt;li>指定输出长度&lt;/li>
-&lt;/ul>
-&lt;h2 id="内容">内容&lt;/h2>
-&lt;h3 id="1-确定角色定义">1. 确定角色定义&lt;/h3>
-&lt;p>明确定义 AI 的身份和专业背景，这决定了 AI 的回答风格和专业程度。&lt;/p>
-&lt;p>&lt;strong>要点：&lt;/strong>&lt;/p>
-&lt;ul>
-&lt;li>具体的职业身份（如：高级软件架构师、产品经理、数据分析师）&lt;/li>
-&lt;li>相关的专业背景和经验&lt;/li>
-&lt;li>工作场景和责任范围&lt;/li>
-&lt;li>与用户的关系定位&lt;/li>
-&lt;/ul>
-&lt;p>&lt;strong>示例：&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-markdown" data-lang="markdown">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 角色定义
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>你是一个专门负责XXX互动游戏框架的高级需求分析师，具备深度的技术架构理解能力和丰富的互动营销产品经验。
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-确定核心目标">2. 确定核心目标&lt;/h3>
-&lt;p>清晰描述希望 AI 完成的主要任务和期望达到的效果。&lt;/p>
-&lt;p>&lt;strong>要点：&lt;/strong>&lt;/p>
-&lt;ul>
-&lt;li>主要任务的具体描述&lt;/li>
-&lt;li>预期的输出结果&lt;/li>
-&lt;li>成功的衡量标准&lt;/li>
-&lt;li>目标用户和使用场景&lt;/li>
-&lt;/ul>
-&lt;p>&lt;strong>示例：&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-markdown" data-lang="markdown">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 核心目标
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">-&lt;/span> **产出需求文档**：你的主要职责是将复杂的互动营销产品需求与现有的XXX基座能力进行深度结合，系统性地拆分成技术边界清晰、可独立开发和测试的产品包需求模块，并生成标准化的产品包需求文档
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="3-确定关键规则">3. 确定关键规则&lt;/h3>
-&lt;p>设定 AI 行为的边界和约束条件，确保输出的质量和一致性，迭代过程中可以持续拓展相关规则&lt;/p>
-&lt;p>&lt;strong>要点：&lt;/strong>&lt;/p>
-&lt;ul>
-&lt;li>约束AI 的行为&lt;/li>
-&lt;li>内容的准确性标准&lt;/li>
-&lt;li>禁止的行为或内容&lt;/li>
-&lt;li>特殊情况的处理方式&lt;/li>
-&lt;/ul>
-&lt;p>&lt;strong>示例：&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-markdown" data-lang="markdown">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 关键规则
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">-&lt;/span> **后端聚焦**：一定只提取后端功能需求（业务逻辑、数据处理、系统集成），必须忽略前端实现细节
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">-&lt;/span> **防简化要求**：严格遵循 &lt;span style="color:#e6db74">`./anti-simplification-rules.md`&lt;/span> 中的防简化规则，绝对禁止简化、概述、总结原始需求内容
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="4-确定执行流程">4. 确定执行流程&lt;/h3>
-&lt;p>定义 AI 处理任务的具体步骤和逻辑顺序。&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>AI on Genluo</title><link>https://genluo.github.io/my-blog/tags/ai/</link><description>Recent content in AI on Genluo</description><generator>Hugo -- 0.149.0</generator><language>zh-cn</language><lastBuildDate>Mon, 28 Jul 2025 16:13:52 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>如何写出高质量的 Prompt</title><link>https://genluo.github.io/my-blog/posts/prompt/</link><pubDate>Mon, 28 Jul 2025 16:13:52 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/prompt/</guid><description>&lt;p&gt;整个 AI Agent 的开发流程中，编写高质量的 Prompt 非常重要，目前总结了一些 writing prompt 的技巧，可以作为后续的参考&lt;/p&gt;
+&lt;h2 id="要点"&gt;要点&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;内容需要详细，不要概括笼统，月具体越好&lt;/li&gt;
+&lt;li&gt;让模型充当一个角色，让其更加专业和明确&lt;/li&gt;
+&lt;li&gt;使用分割符来区分输出的不同部分&lt;/li&gt;
+&lt;li&gt;指定任务完成的步骤，将复杂任务简化&lt;/li&gt;
+&lt;li&gt;提供示例，给模型进行参考&lt;/li&gt;
+&lt;li&gt;指定输出长度&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="内容"&gt;内容&lt;/h2&gt;
+&lt;h3 id="1-确定角色定义"&gt;1. 确定角色定义&lt;/h3&gt;
+&lt;p&gt;明确定义 AI 的身份和专业背景，这决定了 AI 的回答风格和专业程度。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;具体的职业身份（如：高级软件架构师、产品经理、数据分析师）&lt;/li&gt;
+&lt;li&gt;相关的专业背景和经验&lt;/li&gt;
+&lt;li&gt;工作场景和责任范围&lt;/li&gt;
+&lt;li&gt;与用户的关系定位&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 角色定义
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;你是一个专门负责XXX互动游戏框架的高级需求分析师，具备深度的技术架构理解能力和丰富的互动营销产品经验。
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="2-确定核心目标"&gt;2. 确定核心目标&lt;/h3&gt;
+&lt;p&gt;清晰描述希望 AI 完成的主要任务和期望达到的效果。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;主要任务的具体描述&lt;/li&gt;
+&lt;li&gt;预期的输出结果&lt;/li&gt;
+&lt;li&gt;成功的衡量标准&lt;/li&gt;
+&lt;li&gt;目标用户和使用场景&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 核心目标
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **产出需求文档**：你的主要职责是将复杂的互动营销产品需求与现有的XXX基座能力进行深度结合，系统性地拆分成技术边界清晰、可独立开发和测试的产品包需求模块，并生成标准化的产品包需求文档
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="3-确定关键规则"&gt;3. 确定关键规则&lt;/h3&gt;
+&lt;p&gt;设定 AI 行为的边界和约束条件，确保输出的质量和一致性，迭代过程中可以持续拓展相关规则&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;约束AI 的行为&lt;/li&gt;
+&lt;li&gt;内容的准确性标准&lt;/li&gt;
+&lt;li&gt;禁止的行为或内容&lt;/li&gt;
+&lt;li&gt;特殊情况的处理方式&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 关键规则
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **后端聚焦**：一定只提取后端功能需求（业务逻辑、数据处理、系统集成），必须忽略前端实现细节
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **防简化要求**：严格遵循 &lt;span style="color:#e6db74"&gt;`./anti-simplification-rules.md`&lt;/span&gt; 中的防简化规则，绝对禁止简化、概述、总结原始需求内容
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="4-确定执行流程"&gt;4. 确定执行流程&lt;/h3&gt;
+&lt;p&gt;定义 AI 处理任务的具体步骤和逻辑顺序。&lt;/p&gt;</description></item></channel></rss>

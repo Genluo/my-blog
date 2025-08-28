@@ -1,196 +1,197 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Genluo</title><link>https://genluo.github.io/my-blog/</link><description>Recent content on Genluo</description><generator>Hugo -- 0.148.2</generator><language>zh-cn</language><lastBuildDate>Mon, 11 Aug 2025 20:18:21 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Readerwriterqueue 源代码阅读</title><link>https://genluo.github.io/my-blog/posts/readerwriterqueue/</link><pubDate>Mon, 11 Aug 2025 20:18:21 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/readerwriterqueue/</guid><description>&lt;p>&lt;a href="https://github.com/cameron314/readerwriterqueue">ReaderWriterQueue&lt;/a> 是一个高性能的 C++无锁队列实现，专为单生产者-单消费者（SPSC）场景设计。&lt;/p>
-&lt;ul>
-&lt;li>无锁设计：完全无锁实现，enqueue 和 dequeue 操作都是 O(1)时间复杂度&lt;/li>
-&lt;li>高性能：在 x86 架构上，内存屏障编译为无操作指令，性能极佳&lt;/li>
-&lt;li>C++11 兼容：支持移动语义，减少不必要的拷贝&lt;/li>
-&lt;li>泛型模板：使用模版支持任意类型的元素，类似 std::queue&lt;/li>
-&lt;li>内存高效：预分配连续内存块，提供 try_enqueue 保证不分配内存&lt;/li>
-&lt;li>阻塞版本：提供 BlockingReaderWriterQueue 支持 wait_dequeue 操作&lt;/li>
-&lt;/ul>
-&lt;p>适用于需要在两个线程间高效传递数据的场景，如生产者-消费者模式、异步任务处理等。仅需包含头文件即可使用，无需额外依赖&lt;/p>
-&lt;h2 id="核心问题">核心问题&lt;/h2>
-&lt;h3 id="1-整体思路">1. 整体思路&lt;/h3>
-&lt;p>代码中主要包含两个部分，一个是队列链表，这个链表中存储很多的 block，每个 block 内部实现又是一个链表，这个链表，有读写两个指针，可以存放多个线程共享的元素&lt;/p>
-&lt;h3 id="2-内存中结构">2. 内存中结构&lt;/h3>
-&lt;p>存储的数据分为两部分，一部分是 Block 中属性数据+内存对其&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">auto&lt;/span> size &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">sizeof&lt;/span>(Block) &lt;span style="color:#f92672">+&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>alignment_of&lt;span style="color:#f92672">&amp;lt;&lt;/span>Block&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>另一部分则是需要存储的具体数据：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>size &lt;span style="color:#f92672">+=&lt;/span> &lt;span style="color:#66d9ef">sizeof&lt;/span>(T) &lt;span style="color:#f92672">*&lt;/span> capacity &lt;span style="color:#f92672">+&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>alignment_of&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value &lt;span style="color:#f92672">-&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>针对申请的内容，实际分配内存进行指针对齐&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">auto&lt;/span> newBlockRaw &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">static_cast&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&amp;gt;&lt;/span>(std&lt;span style="color:#f92672">::&lt;/span>malloc(size));
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">auto&lt;/span> newBlockAligned &lt;span style="color:#f92672">=&lt;/span> align_for&lt;span style="color:#f92672">&amp;lt;&lt;/span>Block&lt;span style="color:#f92672">&amp;gt;&lt;/span>(newBlockRaw);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">auto&lt;/span> newBlockData &lt;span style="color:#f92672">=&lt;/span> align_for&lt;span style="color:#f92672">&amp;lt;&lt;/span>T&lt;span style="color:#f92672">&amp;gt;&lt;/span>(newBlockAligned &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#66d9ef">sizeof&lt;/span>(Block));
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">template&lt;/span> &lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#66d9ef">typename&lt;/span> U&lt;span style="color:#f92672">&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">static&lt;/span> AE_FORCEINLINE &lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>align_for(&lt;span style="color:#66d9ef">char&lt;/span> &lt;span style="color:#f92672">*&lt;/span>ptr) AE_NO_TSAN {
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>size_t alignment &lt;span style="color:#f92672">=&lt;/span> std&lt;span style="color:#f92672">::&lt;/span>alignment_of&lt;span style="color:#f92672">&amp;lt;&lt;/span>U&lt;span style="color:#f92672">&amp;gt;::&lt;/span>value;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> ptr &lt;span style="color:#f92672">+&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> (alignment &lt;span style="color:#f92672">-&lt;/span> (&lt;span style="color:#66d9ef">reinterpret_cast&lt;/span>&lt;span style="color:#f92672">&amp;lt;&lt;/span>std&lt;span style="color:#f92672">::&lt;/span>uintptr_t&lt;span style="color:#f92672">&amp;gt;&lt;/span>(ptr) &lt;span style="color:#f92672">%&lt;/span> alignment)) &lt;span style="color:#f92672">%&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> alignment;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>为什么这个过程中需要内存对其，可以看下下面的问题部分，这样对齐之后可以保证：&lt;/p></description></item><item><title>Vscode+clangd</title><link>https://genluo.github.io/my-blog/posts/vscode+clangd/</link><pubDate>Fri, 08 Aug 2025 17:41:50 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/vscode+clangd/</guid><description>&lt;h2 id="基本配置">基本配置&lt;/h2>
-&lt;p>一般来说，&lt;code>vscode&lt;/code> 中开发 &lt;code>c++&lt;/code> 项目使用的都是微软提供的插件，但是这个插件不是很好用，推荐使用 &lt;code>clangd&lt;/code> ，相比于微软的插件来说，错误的提示更好点，同时速度要快很多&lt;/p>
-&lt;h3 id="基础配置">基础配置&lt;/h3>
-&lt;p>如果使用 &lt;code>cmake&lt;/code> 进行开发，可以添加编译参数 &lt;code>-DCMAKE_EXPORT_COMPILE_COMMANDS=ON&lt;/code> 来生成 &lt;code>clangd&lt;/code> 需要的 &lt;code>compile_commands.json&lt;/code> 来索引整个项目的源文件&lt;/p>
-&lt;p>通过 &lt;code>cmake&lt;/code> 进行配置生成，包含
-&lt;img loading="lazy" src="https://genluo.github.io/my-blog/img/image-3.png">&lt;/p>
-&lt;h3 id="bear-工具介绍">&lt;a href="https://github.com/rizsotto/Bear">bear&lt;/a> 工具介绍&lt;/h3>
-&lt;blockquote>
-&lt;p>generates a compilation database for clang tooling.&lt;/p>&lt;/blockquote>
-&lt;p>如果使用的是其他的构建系统，没有使用 &lt;code>cmake&lt;/code> 可以使用这个工具，生成对应的 &lt;code>compile_commands.json&lt;/code>&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>bear -- make
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-4.png">&lt;/p>
-&lt;p>重启服务之后，可以正常进行跳转&lt;/p>
-&lt;p>&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-5.png">&lt;/p></description></item><item><title>如何写出高质量的 Prompt</title><link>https://genluo.github.io/my-blog/posts/prompt/</link><pubDate>Mon, 28 Jul 2025 16:13:52 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/prompt/</guid><description>&lt;p>整个 AI Agent 的开发流程中，编写高质量的 Prompt 非常重要，目前总结了一些 writing prompt 的技巧，可以作为后续的参考&lt;/p>
-&lt;h2 id="要点">要点&lt;/h2>
-&lt;ul>
-&lt;li>内容需要详细，不要概括笼统，月具体越好&lt;/li>
-&lt;li>让模型充当一个角色，让其更加专业和明确&lt;/li>
-&lt;li>使用分割符来区分输出的不同部分&lt;/li>
-&lt;li>指定任务完成的步骤，将复杂任务简化&lt;/li>
-&lt;li>提供示例，给模型进行参考&lt;/li>
-&lt;li>指定输出长度&lt;/li>
-&lt;/ul>
-&lt;h2 id="内容">内容&lt;/h2>
-&lt;h3 id="1-确定角色定义">1. 确定角色定义&lt;/h3>
-&lt;p>明确定义 AI 的身份和专业背景，这决定了 AI 的回答风格和专业程度。&lt;/p>
-&lt;p>&lt;strong>要点：&lt;/strong>&lt;/p>
-&lt;ul>
-&lt;li>具体的职业身份（如：高级软件架构师、产品经理、数据分析师）&lt;/li>
-&lt;li>相关的专业背景和经验&lt;/li>
-&lt;li>工作场景和责任范围&lt;/li>
-&lt;li>与用户的关系定位&lt;/li>
-&lt;/ul>
-&lt;p>&lt;strong>示例：&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-markdown" data-lang="markdown">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 角色定义
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>你是一个专门负责XXX互动游戏框架的高级需求分析师，具备深度的技术架构理解能力和丰富的互动营销产品经验。
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-确定核心目标">2. 确定核心目标&lt;/h3>
-&lt;p>清晰描述希望 AI 完成的主要任务和期望达到的效果。&lt;/p>
-&lt;p>&lt;strong>要点：&lt;/strong>&lt;/p>
-&lt;ul>
-&lt;li>主要任务的具体描述&lt;/li>
-&lt;li>预期的输出结果&lt;/li>
-&lt;li>成功的衡量标准&lt;/li>
-&lt;li>目标用户和使用场景&lt;/li>
-&lt;/ul>
-&lt;p>&lt;strong>示例：&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-markdown" data-lang="markdown">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 核心目标
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">-&lt;/span> **产出需求文档**：你的主要职责是将复杂的互动营销产品需求与现有的XXX基座能力进行深度结合，系统性地拆分成技术边界清晰、可独立开发和测试的产品包需求模块，并生成标准化的产品包需求文档
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="3-确定关键规则">3. 确定关键规则&lt;/h3>
-&lt;p>设定 AI 行为的边界和约束条件，确保输出的质量和一致性，迭代过程中可以持续拓展相关规则&lt;/p>
-&lt;p>&lt;strong>要点：&lt;/strong>&lt;/p>
-&lt;ul>
-&lt;li>约束AI 的行为&lt;/li>
-&lt;li>内容的准确性标准&lt;/li>
-&lt;li>禁止的行为或内容&lt;/li>
-&lt;li>特殊情况的处理方式&lt;/li>
-&lt;/ul>
-&lt;p>&lt;strong>示例：&lt;/strong>&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-markdown" data-lang="markdown">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">## 关键规则
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">-&lt;/span> **后端聚焦**：一定只提取后端功能需求（业务逻辑、数据处理、系统集成），必须忽略前端实现细节
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">-&lt;/span> **防简化要求**：严格遵循 &lt;span style="color:#e6db74">`./anti-simplification-rules.md`&lt;/span> 中的防简化规则，绝对禁止简化、概述、总结原始需求内容
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="4-确定执行流程">4. 确定执行流程&lt;/h3>
-&lt;p>定义 AI 处理任务的具体步骤和逻辑顺序。&lt;/p></description></item><item><title>Augment 试用</title><link>https://genluo.github.io/my-blog/posts/augment/</link><pubDate>Thu, 17 Jul 2025 11:35:06 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/augment/</guid><description>&lt;p>最近试用了下 &lt;code>augment&lt;/code> 进行一些需求开发，感觉相比 &lt;code>cursor&lt;/code> 还是解决了一些问题，挺好的进行分享下&lt;/p>
-&lt;h2 id="上下文机制">上下文机制&lt;/h2>
-&lt;p>如何进行跨仓库开发，以前使用 &lt;code>cursor&lt;/code> 是通过同时打开两个仓库进行的，但是在 augment 中，可以通过上下文机制进行。
-&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image.png">&lt;/p>
-&lt;p>通过这种方式可以给新的仓库添加对应的索引，然后在当前仓库的开发中进行使用&lt;/p>
-&lt;h2 id="工具">工具&lt;/h2>
-&lt;p>另外一个比较好的点是 &lt;code>augment&lt;/code> 提供了一些工具配置，可以一键进行安装使用&lt;/p>
-&lt;p>&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image1.png">&lt;/p>
-&lt;h2 id="任务规划">任务规划&lt;/h2>
-&lt;p>提供了任务规划，可以让用户手动指定相关任务列表，并且后续能够将本次编辑的任务导出进行保存，后续可以二次进行使用
-&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-1.png">&lt;/p>
-&lt;p>同理，针对起他通用的agent 任务，augment 也会进行任务拆分，然后逐个实现，只不过这里提供了一个窗口，可以让用户指定任务列表，这针对于用户想要自己创建固定的任务流程是非常有用的&lt;/p>
-&lt;h2 id="图表展示">图表展示&lt;/h2>
-&lt;p>不知道为什么，感觉 augment 针对 mermaid 的图标进行了展示优化，看起来比较舒服，如果能够再加一个全屏展示会更好
-&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image3.png">&lt;/p>
-&lt;h2 id="提示词优化">提示词优化&lt;/h2>
-&lt;p>可以先编写简短或不完整的提示，然后使用提示增强从代码库中添加相关的参考、结构和约定，以便在发送提示之前对其进行改进。这个非常好用
-&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-2.png">&lt;/p></description></item><item><title>StateMachine</title><link>https://genluo.github.io/my-blog/posts/statemachine/</link><pubDate>Tue, 08 Jul 2025 14:03:56 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/statemachine/</guid><description>&lt;h2 id="状态机概述">状态机概述&lt;/h2>
-&lt;p>状态机是一种计算模型，用于描述系统在不同状态之间的转换逻辑。它由状态（States）、事件（Events）和转换（Transitions）组成。状态机在任一时刻只能处于一个特定状态，通过触发事件使其从一个状态转换到另一个状态。&lt;/p>
-&lt;h2 id="核心概念">核心概念&lt;/h2>
-&lt;ul>
-&lt;li>&lt;strong>状态（State）&lt;/strong>：系统可能处于的一种情况或模式。&lt;/li>
-&lt;li>&lt;strong>事件（Event）&lt;/strong>：触发状态转换的信号或动作。&lt;/li>
-&lt;li>&lt;strong>转换（Transition）&lt;/strong>：定义从一个状态到另一个状态的规则。&lt;/li>
-&lt;li>&lt;strong>回调（Callback）&lt;/strong>：状态转换时执行的逻辑。&lt;/li>
-&lt;/ul>
-&lt;h2 id="应用场景">应用场景&lt;/h2>
-&lt;p>状态机在以下场景中特别有用：&lt;/p>
-&lt;ul>
-&lt;li>游戏开发：管理游戏角色的不同状态（站立、行走、攻击、受伤等）。&lt;/li>
-&lt;li>UI 交互：控制界面元素在不同状态下的行为（正常、悬停、激活、禁用）。&lt;/li>
-&lt;li>工作流管理：追踪业务流程的不同阶段（创建、审核、发布）。&lt;/li>
-&lt;li>协议实现：网络协议的状态管理（连接中、已连接、断开连接）。&lt;/li>
-&lt;li>动画控制：管理动画序列和转换。&lt;/li>
-&lt;/ul>
-&lt;h2 id="基本用法">基本用法&lt;/h2>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-typescript" data-lang="typescript">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 定义状态和事件类型
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">type&lt;/span> &lt;span style="color:#a6e22e">State&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;idle&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;paused&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;stopped&amp;#39;&lt;/span>;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">type&lt;/span> &lt;span style="color:#a6e22e">Event&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;START&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;PAUSE&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;RESUME&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;STOP&amp;#39;&lt;/span>;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 创建状态机实例
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#a6e22e">sm&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> &lt;span style="color:#a6e22e">StateMachine&lt;/span>&amp;lt;&lt;span style="color:#f92672">State&lt;/span>, &lt;span style="color:#a6e22e">Event&lt;/span>&amp;gt;(&lt;span style="color:#e6db74">&amp;#39;idle&amp;#39;&lt;/span>, [
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;idle&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;START&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span>),
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;PAUSE&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;paused&amp;#39;&lt;/span>),
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;paused&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;RESUME&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span>),
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;STOP&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;stopped&amp;#39;&lt;/span>),
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 触发状态转换
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">await&lt;/span> &lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">dispatch&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;START&amp;#39;&lt;/span>); &lt;span style="color:#75715e">// idle -&amp;gt; running
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#a6e22e">console&lt;/span>.&lt;span style="color:#a6e22e">log&lt;/span>(&lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">getState&lt;/span>()); &lt;span style="color:#75715e">// &amp;#39;running&amp;#39;
-&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="高级特性">高级特性&lt;/h2>
-&lt;h3 id="全局事件any_state">全局事件（ANY_STATE）&lt;/h3>
-&lt;p>使用 &lt;code>ANY_STATE&lt;/code> 符号定义可从任意状态触发的转换：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-typescript" data-lang="typescript">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// RESET 事件可从任何状态回到 idle 状态
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">addTransitions&lt;/span>([
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#a6e22e">ANY_STATE&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;RESET&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;idle&amp;#39;&lt;/span>, &lt;span style="color:#a6e22e">resetCallback&lt;/span>)
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]);
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="状态查询和预测">状态查询和预测&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-typescript" data-lang="typescript">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 检查当前状态是否可以接收特定事件
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">can&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;PAUSE&amp;#39;&lt;/span>)) {
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 可以执行暂停操作
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 获取事件触发后的下一个状态
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#a6e22e">nextState&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">getNextState&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;STOP&amp;#39;&lt;/span>); &lt;span style="color:#75715e">// &amp;#39;stopped&amp;#39;
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 检查当前是否为终止状态（没有可用的出站转换）
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">isFinal&lt;/span>()) {
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 到达终止状态
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="子状态机">子状态机&lt;/h3>
-&lt;p>子状态机是一种嵌套状态机机制，允许在一个主状态内部有自己的状态转换逻辑。这对于构建复杂的分层状态行为非常有用&lt;/p></description></item><item><title>关于我</title><link>https://genluo.github.io/my-blog/about/</link><pubDate>Fri, 04 Jul 2025 20:13:21 +0800</pubDate><guid>https://genluo.github.io/my-blog/about/</guid><description>&lt;h2 id="关于我">关于我&lt;/h2>
-&lt;p>做过 PC web开发、mobile web开发、 web游戏开发，也尝试过 Apple Vision Pro 上的游戏开发，专注用户交互，梦想是做出&lt;strong>性能强劲&lt;/strong>，用户&lt;strong>体验优异&lt;/strong>，能产生业务价值的产品&lt;/p>
-&lt;h3 id="常用工具箱">常用工具箱&lt;/h3>
-&lt;ul>
-&lt;li>语言：TypeScript、C++&lt;/li>
-&lt;li>框架：React、NestJs&lt;/li>
-&lt;li>运行时：Node.js、Chrome/浏览器、visionOS&lt;/li>
-&lt;li>标准：webGPU、WebAssembly、&lt;/li>
-&lt;/ul>
-&lt;h3 id="历史项目">历史项目&lt;/h3>
-&lt;ul>
-&lt;li>淘宝商品创新表达（消费电子行业3D、快消行业序列帧、家装行业全景视频）&lt;/li>
-&lt;li>淘宝3D引擎对应的相关产品
-&lt;ul>
-&lt;li>端渲染和云渲染协同切换（webRTC、追帧算法）&lt;/li>
-&lt;li>引擎Binding技术方案落地（quickJS、wasm）&lt;/li>
-&lt;li>引擎对应的3D编辑器（编辑器、节点编辑、AI Agent）&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;h3 id="专利">专利&lt;/h3>
-&lt;ul>
-&lt;li>一种基于端云协同的三维场景加载及渲染技术（2024-01-12）&lt;/li>
-&lt;li>全景视频投放素材生产与展示设计方案（中国 2024-06-11，中国香港2025-01-17）&lt;/li>
-&lt;/ul>
-&lt;h2 id="联系方式">联系方式&lt;/h2>
-&lt;ul>
-&lt;li>邮箱：&lt;a href="mailto:isgenluo@gmail.com">isgenluo@gmail.com&lt;/a>&lt;/li>
-&lt;li>GitHub：&lt;a href="https://github.com/genluo">我的GitHub主页&lt;/a>&lt;/li>
-&lt;/ul></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Genluo</title><link>https://genluo.github.io/my-blog/</link><description>Recent content on Genluo</description><generator>Hugo -- 0.149.0</generator><language>zh-cn</language><lastBuildDate>Mon, 11 Aug 2025 20:18:21 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Readerwriterqueue 源代码阅读</title><link>https://genluo.github.io/my-blog/posts/readerwriterqueue/</link><pubDate>Mon, 11 Aug 2025 20:18:21 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/readerwriterqueue/</guid><description>&lt;p&gt;&lt;a href="https://github.com/cameron314/readerwriterqueue"&gt;ReaderWriterQueue&lt;/a&gt; 是一个高性能的 C++无锁队列实现，专为单生产者-单消费者（SPSC）场景设计。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;无锁设计：完全无锁实现，enqueue 和 dequeue 操作都是 O(1)时间复杂度&lt;/li&gt;
+&lt;li&gt;高性能：在 x86 架构上，内存屏障编译为无操作指令，性能极佳&lt;/li&gt;
+&lt;li&gt;C++11 兼容：支持移动语义，减少不必要的拷贝&lt;/li&gt;
+&lt;li&gt;泛型模板：使用模版支持任意类型的元素，类似 std::queue&lt;/li&gt;
+&lt;li&gt;内存高效：预分配连续内存块，提供 try_enqueue 保证不分配内存&lt;/li&gt;
+&lt;li&gt;阻塞版本：提供 BlockingReaderWriterQueue 支持 wait_dequeue 操作&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;适用于需要在两个线程间高效传递数据的场景，如生产者-消费者模式、异步任务处理等。仅需包含头文件即可使用，无需额外依赖&lt;/p&gt;
+&lt;h2 id="核心问题"&gt;核心问题&lt;/h2&gt;
+&lt;h3 id="1-整体思路"&gt;1. 整体思路&lt;/h3&gt;
+&lt;p&gt;代码中主要包含两个部分，一个是队列链表，这个链表中存储很多的 block，每个 block 内部实现又是一个链表，这个链表，有读写两个指针，可以存放多个线程共享的元素&lt;/p&gt;
+&lt;h3 id="2-内存中结构"&gt;2. 内存中结构&lt;/h3&gt;
+&lt;p&gt;存储的数据分为两部分，一部分是 Block 中属性数据+内存对其&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-cpp" data-lang="cpp"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; size &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;sizeof&lt;/span&gt;(Block) &lt;span style="color:#f92672"&gt;+&lt;/span&gt; std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;alignment_of&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;Block&lt;span style="color:#f92672"&gt;&amp;gt;::&lt;/span&gt;value &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;另一部分则是需要存储的具体数据：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-cpp" data-lang="cpp"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;size &lt;span style="color:#f92672"&gt;+=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;sizeof&lt;/span&gt;(T) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; capacity &lt;span style="color:#f92672"&gt;+&lt;/span&gt; std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;alignment_of&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;T&lt;span style="color:#f92672"&gt;&amp;gt;::&lt;/span&gt;value &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;针对申请的内容，实际分配内存进行指针对齐&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-cpp" data-lang="cpp"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; newBlockRaw &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;static_cast&lt;/span&gt;&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&amp;gt;&lt;/span&gt;(std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;malloc(size));
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; newBlockAligned &lt;span style="color:#f92672"&gt;=&lt;/span&gt; align_for&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;Block&lt;span style="color:#f92672"&gt;&amp;gt;&lt;/span&gt;(newBlockRaw);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; newBlockData &lt;span style="color:#f92672"&gt;=&lt;/span&gt; align_for&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;T&lt;span style="color:#f92672"&gt;&amp;gt;&lt;/span&gt;(newBlockAligned &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;sizeof&lt;/span&gt;(Block));
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;template&lt;/span&gt; &lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;typename&lt;/span&gt; U&lt;span style="color:#f92672"&gt;&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;static&lt;/span&gt; AE_FORCEINLINE &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;align_for(&lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;ptr) AE_NO_TSAN {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;size_t alignment &lt;span style="color:#f92672"&gt;=&lt;/span&gt; std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;alignment_of&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;U&lt;span style="color:#f92672"&gt;&amp;gt;::&lt;/span&gt;value;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; ptr &lt;span style="color:#f92672"&gt;+&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; (alignment &lt;span style="color:#f92672"&gt;-&lt;/span&gt; (&lt;span style="color:#66d9ef"&gt;reinterpret_cast&lt;/span&gt;&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;uintptr_t&lt;span style="color:#f92672"&gt;&amp;gt;&lt;/span&gt;(ptr) &lt;span style="color:#f92672"&gt;%&lt;/span&gt; alignment)) &lt;span style="color:#f92672"&gt;%&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; alignment;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;为什么这个过程中需要内存对其，可以看下下面的问题部分，这样对齐之后可以保证：&lt;/p&gt;</description></item><item><title>Vscode+clangd</title><link>https://genluo.github.io/my-blog/posts/vscode+clangd/</link><pubDate>Fri, 08 Aug 2025 17:41:50 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/vscode+clangd/</guid><description>&lt;h2 id="基本配置"&gt;基本配置&lt;/h2&gt;
+&lt;p&gt;一般来说，&lt;code&gt;vscode&lt;/code&gt; 中开发 &lt;code&gt;c++&lt;/code&gt; 项目使用的都是微软提供的插件，但是这个插件不是很好用，推荐使用 &lt;code&gt;clangd&lt;/code&gt; ，相比于微软的插件来说，错误的提示更好点，同时速度要快很多&lt;/p&gt;
+&lt;h3 id="基础配置"&gt;基础配置&lt;/h3&gt;
+&lt;p&gt;如果使用 &lt;code&gt;cmake&lt;/code&gt; 进行开发，可以添加编译参数 &lt;code&gt;-DCMAKE_EXPORT_COMPILE_COMMANDS=ON&lt;/code&gt; 来生成 &lt;code&gt;clangd&lt;/code&gt; 需要的 &lt;code&gt;compile_commands.json&lt;/code&gt; 来索引整个项目的源文件&lt;/p&gt;
+&lt;p&gt;通过 &lt;code&gt;cmake&lt;/code&gt; 进行配置生成，包含
+&lt;img loading="lazy" src="https://genluo.github.io/my-blog/img/image-3.png"&gt;&lt;/p&gt;
+&lt;h3 id="bear-工具介绍"&gt;&lt;a href="https://github.com/rizsotto/Bear"&gt;bear&lt;/a&gt; 工具介绍&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;generates a compilation database for clang tooling.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;如果使用的是其他的构建系统，没有使用 &lt;code&gt;cmake&lt;/code&gt; 可以使用这个工具，生成对应的 &lt;code&gt;compile_commands.json&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;bear -- make
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-4.png"&gt;&lt;/p&gt;
+&lt;p&gt;重启服务之后，可以正常进行跳转&lt;/p&gt;
+&lt;p&gt;&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-5.png"&gt;&lt;/p&gt;</description></item><item><title>如何写出高质量的 Prompt</title><link>https://genluo.github.io/my-blog/posts/prompt/</link><pubDate>Mon, 28 Jul 2025 16:13:52 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/prompt/</guid><description>&lt;p&gt;整个 AI Agent 的开发流程中，编写高质量的 Prompt 非常重要，目前总结了一些 writing prompt 的技巧，可以作为后续的参考&lt;/p&gt;
+&lt;h2 id="要点"&gt;要点&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;内容需要详细，不要概括笼统，月具体越好&lt;/li&gt;
+&lt;li&gt;让模型充当一个角色，让其更加专业和明确&lt;/li&gt;
+&lt;li&gt;使用分割符来区分输出的不同部分&lt;/li&gt;
+&lt;li&gt;指定任务完成的步骤，将复杂任务简化&lt;/li&gt;
+&lt;li&gt;提供示例，给模型进行参考&lt;/li&gt;
+&lt;li&gt;指定输出长度&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="内容"&gt;内容&lt;/h2&gt;
+&lt;h3 id="1-确定角色定义"&gt;1. 确定角色定义&lt;/h3&gt;
+&lt;p&gt;明确定义 AI 的身份和专业背景，这决定了 AI 的回答风格和专业程度。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;具体的职业身份（如：高级软件架构师、产品经理、数据分析师）&lt;/li&gt;
+&lt;li&gt;相关的专业背景和经验&lt;/li&gt;
+&lt;li&gt;工作场景和责任范围&lt;/li&gt;
+&lt;li&gt;与用户的关系定位&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 角色定义
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;你是一个专门负责XXX互动游戏框架的高级需求分析师，具备深度的技术架构理解能力和丰富的互动营销产品经验。
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="2-确定核心目标"&gt;2. 确定核心目标&lt;/h3&gt;
+&lt;p&gt;清晰描述希望 AI 完成的主要任务和期望达到的效果。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;主要任务的具体描述&lt;/li&gt;
+&lt;li&gt;预期的输出结果&lt;/li&gt;
+&lt;li&gt;成功的衡量标准&lt;/li&gt;
+&lt;li&gt;目标用户和使用场景&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 核心目标
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **产出需求文档**：你的主要职责是将复杂的互动营销产品需求与现有的XXX基座能力进行深度结合，系统性地拆分成技术边界清晰、可独立开发和测试的产品包需求模块，并生成标准化的产品包需求文档
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="3-确定关键规则"&gt;3. 确定关键规则&lt;/h3&gt;
+&lt;p&gt;设定 AI 行为的边界和约束条件，确保输出的质量和一致性，迭代过程中可以持续拓展相关规则&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;约束AI 的行为&lt;/li&gt;
+&lt;li&gt;内容的准确性标准&lt;/li&gt;
+&lt;li&gt;禁止的行为或内容&lt;/li&gt;
+&lt;li&gt;特殊情况的处理方式&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 关键规则
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **后端聚焦**：一定只提取后端功能需求（业务逻辑、数据处理、系统集成），必须忽略前端实现细节
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **防简化要求**：严格遵循 &lt;span style="color:#e6db74"&gt;`./anti-simplification-rules.md`&lt;/span&gt; 中的防简化规则，绝对禁止简化、概述、总结原始需求内容
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="4-确定执行流程"&gt;4. 确定执行流程&lt;/h3&gt;
+&lt;p&gt;定义 AI 处理任务的具体步骤和逻辑顺序。&lt;/p&gt;</description></item><item><title>Augment 试用</title><link>https://genluo.github.io/my-blog/posts/augment/</link><pubDate>Thu, 17 Jul 2025 11:35:06 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/augment/</guid><description>&lt;p&gt;最近试用了下 &lt;code&gt;augment&lt;/code&gt; 进行一些需求开发，感觉相比 &lt;code&gt;cursor&lt;/code&gt; 还是解决了一些问题，挺好的进行分享下&lt;/p&gt;
+&lt;h2 id="上下文机制"&gt;上下文机制&lt;/h2&gt;
+&lt;p&gt;如何进行跨仓库开发，以前使用 &lt;code&gt;cursor&lt;/code&gt; 是通过同时打开两个仓库进行的，但是在 augment 中，可以通过上下文机制进行。
+&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image.png"&gt;&lt;/p&gt;
+&lt;p&gt;通过这种方式可以给新的仓库添加对应的索引，然后在当前仓库的开发中进行使用&lt;/p&gt;
+&lt;h2 id="工具"&gt;工具&lt;/h2&gt;
+&lt;p&gt;另外一个比较好的点是 &lt;code&gt;augment&lt;/code&gt; 提供了一些工具配置，可以一键进行安装使用&lt;/p&gt;
+&lt;p&gt;&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image1.png"&gt;&lt;/p&gt;
+&lt;h2 id="任务规划"&gt;任务规划&lt;/h2&gt;
+&lt;p&gt;提供了任务规划，可以让用户手动指定相关任务列表，并且后续能够将本次编辑的任务导出进行保存，后续可以二次进行使用
+&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-1.png"&gt;&lt;/p&gt;
+&lt;p&gt;同理，针对起他通用的agent 任务，augment 也会进行任务拆分，然后逐个实现，只不过这里提供了一个窗口，可以让用户指定任务列表，这针对于用户想要自己创建固定的任务流程是非常有用的&lt;/p&gt;
+&lt;h2 id="图表展示"&gt;图表展示&lt;/h2&gt;
+&lt;p&gt;不知道为什么，感觉 augment 针对 mermaid 的图标进行了展示优化，看起来比较舒服，如果能够再加一个全屏展示会更好
+&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image3.png"&gt;&lt;/p&gt;
+&lt;h2 id="提示词优化"&gt;提示词优化&lt;/h2&gt;
+&lt;p&gt;可以先编写简短或不完整的提示，然后使用提示增强从代码库中添加相关的参考、结构和约定，以便在发送提示之前对其进行改进。这个非常好用
+&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-2.png"&gt;&lt;/p&gt;</description></item><item><title>StateMachine</title><link>https://genluo.github.io/my-blog/posts/statemachine/</link><pubDate>Tue, 08 Jul 2025 14:03:56 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/statemachine/</guid><description>&lt;h2 id="状态机概述"&gt;状态机概述&lt;/h2&gt;
+&lt;p&gt;状态机是一种计算模型，用于描述系统在不同状态之间的转换逻辑。它由状态（States）、事件（Events）和转换（Transitions）组成。状态机在任一时刻只能处于一个特定状态，通过触发事件使其从一个状态转换到另一个状态。&lt;/p&gt;
+&lt;h2 id="核心概念"&gt;核心概念&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;状态（State）&lt;/strong&gt;：系统可能处于的一种情况或模式。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;事件（Event）&lt;/strong&gt;：触发状态转换的信号或动作。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;转换（Transition）&lt;/strong&gt;：定义从一个状态到另一个状态的规则。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;回调（Callback）&lt;/strong&gt;：状态转换时执行的逻辑。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="应用场景"&gt;应用场景&lt;/h2&gt;
+&lt;p&gt;状态机在以下场景中特别有用：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;游戏开发：管理游戏角色的不同状态（站立、行走、攻击、受伤等）。&lt;/li&gt;
+&lt;li&gt;UI 交互：控制界面元素在不同状态下的行为（正常、悬停、激活、禁用）。&lt;/li&gt;
+&lt;li&gt;工作流管理：追踪业务流程的不同阶段（创建、审核、发布）。&lt;/li&gt;
+&lt;li&gt;协议实现：网络协议的状态管理（连接中、已连接、断开连接）。&lt;/li&gt;
+&lt;li&gt;动画控制：管理动画序列和转换。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="基本用法"&gt;基本用法&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 定义状态和事件类型
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;type&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;State&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;stopped&amp;#39;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;type&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;Event&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;RESUME&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;STOP&amp;#39;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 创建状态机实例
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;new&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;StateMachine&lt;/span&gt;&amp;lt;&lt;span style="color:#f92672"&gt;State&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;Event&lt;/span&gt;&amp;gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, [
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;RESUME&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;STOP&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;stopped&amp;#39;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;]);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 触发状态转换
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;await&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;dispatch&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// idle -&amp;gt; running
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;console&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;log&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getState&lt;/span&gt;()); &lt;span style="color:#75715e"&gt;// &amp;#39;running&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="高级特性"&gt;高级特性&lt;/h2&gt;
+&lt;h3 id="全局事件any_state"&gt;全局事件（ANY_STATE）&lt;/h3&gt;
+&lt;p&gt;使用 &lt;code&gt;ANY_STATE&lt;/code&gt; 符号定义可从任意状态触发的转换：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// RESET 事件可从任何状态回到 idle 状态
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;addTransitions&lt;/span&gt;([
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;ANY_STATE&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;RESET&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;resetCallback&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;]);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="状态查询和预测"&gt;状态查询和预测&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 检查当前状态是否可以接收特定事件
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;can&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt;)) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// 可以执行暂停操作
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 获取事件触发后的下一个状态
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;nextState&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getNextState&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;STOP&amp;#39;&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// &amp;#39;stopped&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 检查当前是否为终止状态（没有可用的出站转换）
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;isFinal&lt;/span&gt;()) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// 到达终止状态
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="子状态机"&gt;子状态机&lt;/h3&gt;
+&lt;p&gt;子状态机是一种嵌套状态机机制，允许在一个主状态内部有自己的状态转换逻辑。这对于构建复杂的分层状态行为非常有用&lt;/p&gt;</description></item><item><title>关于我</title><link>https://genluo.github.io/my-blog/about/</link><pubDate>Fri, 04 Jul 2025 20:13:21 +0800</pubDate><guid>https://genluo.github.io/my-blog/about/</guid><description>&lt;h2 id="关于我"&gt;关于我&lt;/h2&gt;
+&lt;p&gt;做过 PC web开发、mobile web开发、 web游戏开发，也尝试过 Apple Vision Pro 上的游戏开发，专注用户交互，梦想是做出&lt;strong&gt;性能强劲&lt;/strong&gt;，用户&lt;strong&gt;体验优异&lt;/strong&gt;，能产生业务价值的产品&lt;/p&gt;
+&lt;p&gt;&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-6.png"&gt;&lt;/p&gt;
+&lt;h3 id="常用工具箱"&gt;常用工具箱&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;语言：TypeScript、C++&lt;/li&gt;
+&lt;li&gt;框架：React、NestJs&lt;/li&gt;
+&lt;li&gt;运行时：Node.js、Chrome/浏览器、visionOS&lt;/li&gt;
+&lt;li&gt;标准：webGPU、WebAssembly、&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="历史项目"&gt;历史项目&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;淘宝商品创新表达（消费电子行业3D、快消行业序列帧、家装行业全景视频）&lt;/li&gt;
+&lt;li&gt;淘宝3D引擎对应的相关产品
+&lt;ul&gt;
+&lt;li&gt;端渲染和云渲染协同切换（webRTC、追帧算法）&lt;/li&gt;
+&lt;li&gt;引擎Binding技术方案落地（quickJS、wasm）&lt;/li&gt;
+&lt;li&gt;引擎对应的3D编辑器（编辑器、节点编辑、AI Agent）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="专利"&gt;专利&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;一种基于端云协同的三维场景加载及渲染技术（2024-01-12）&lt;/li&gt;
+&lt;li&gt;全景视频投放素材生产与展示设计方案（中国 2024-06-11，中国香港2025-01-17）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="联系方式"&gt;联系方式&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;邮箱：&lt;a href="mailto:isgenluo@gmail.com"&gt;isgenluo@gmail.com&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;GitHub：&lt;a href="https://github.com/genluo"&gt;我的GitHub主页&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

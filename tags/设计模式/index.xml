@@ -1,56 +1,56 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>设计模式 on Genluo</title><link>https://genluo.github.io/my-blog/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link><description>Recent content in 设计模式 on Genluo</description><generator>Hugo -- 0.148.2</generator><language>zh-cn</language><lastBuildDate>Tue, 08 Jul 2025 14:03:56 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.xml" rel="self" type="application/rss+xml"/><item><title>StateMachine</title><link>https://genluo.github.io/my-blog/posts/statemachine/</link><pubDate>Tue, 08 Jul 2025 14:03:56 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/statemachine/</guid><description>&lt;h2 id="状态机概述">状态机概述&lt;/h2>
-&lt;p>状态机是一种计算模型，用于描述系统在不同状态之间的转换逻辑。它由状态（States）、事件（Events）和转换（Transitions）组成。状态机在任一时刻只能处于一个特定状态，通过触发事件使其从一个状态转换到另一个状态。&lt;/p>
-&lt;h2 id="核心概念">核心概念&lt;/h2>
-&lt;ul>
-&lt;li>&lt;strong>状态（State）&lt;/strong>：系统可能处于的一种情况或模式。&lt;/li>
-&lt;li>&lt;strong>事件（Event）&lt;/strong>：触发状态转换的信号或动作。&lt;/li>
-&lt;li>&lt;strong>转换（Transition）&lt;/strong>：定义从一个状态到另一个状态的规则。&lt;/li>
-&lt;li>&lt;strong>回调（Callback）&lt;/strong>：状态转换时执行的逻辑。&lt;/li>
-&lt;/ul>
-&lt;h2 id="应用场景">应用场景&lt;/h2>
-&lt;p>状态机在以下场景中特别有用：&lt;/p>
-&lt;ul>
-&lt;li>游戏开发：管理游戏角色的不同状态（站立、行走、攻击、受伤等）。&lt;/li>
-&lt;li>UI 交互：控制界面元素在不同状态下的行为（正常、悬停、激活、禁用）。&lt;/li>
-&lt;li>工作流管理：追踪业务流程的不同阶段（创建、审核、发布）。&lt;/li>
-&lt;li>协议实现：网络协议的状态管理（连接中、已连接、断开连接）。&lt;/li>
-&lt;li>动画控制：管理动画序列和转换。&lt;/li>
-&lt;/ul>
-&lt;h2 id="基本用法">基本用法&lt;/h2>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-typescript" data-lang="typescript">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 定义状态和事件类型
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">type&lt;/span> &lt;span style="color:#a6e22e">State&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;idle&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;paused&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;stopped&amp;#39;&lt;/span>;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">type&lt;/span> &lt;span style="color:#a6e22e">Event&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#39;START&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;PAUSE&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;RESUME&amp;#39;&lt;/span> &lt;span style="color:#f92672">|&lt;/span> &lt;span style="color:#e6db74">&amp;#39;STOP&amp;#39;&lt;/span>;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 创建状态机实例
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#a6e22e">sm&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> &lt;span style="color:#a6e22e">StateMachine&lt;/span>&amp;lt;&lt;span style="color:#f92672">State&lt;/span>, &lt;span style="color:#a6e22e">Event&lt;/span>&amp;gt;(&lt;span style="color:#e6db74">&amp;#39;idle&amp;#39;&lt;/span>, [
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;idle&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;START&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span>),
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;PAUSE&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;paused&amp;#39;&lt;/span>),
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;paused&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;RESUME&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span>),
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;running&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;STOP&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;stopped&amp;#39;&lt;/span>),
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]);
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 触发状态转换
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">await&lt;/span> &lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">dispatch&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;START&amp;#39;&lt;/span>); &lt;span style="color:#75715e">// idle -&amp;gt; running
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#a6e22e">console&lt;/span>.&lt;span style="color:#a6e22e">log&lt;/span>(&lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">getState&lt;/span>()); &lt;span style="color:#75715e">// &amp;#39;running&amp;#39;
-&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="高级特性">高级特性&lt;/h2>
-&lt;h3 id="全局事件any_state">全局事件（ANY_STATE）&lt;/h3>
-&lt;p>使用 &lt;code>ANY_STATE&lt;/code> 符号定义可从任意状态触发的转换：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-typescript" data-lang="typescript">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// RESET 事件可从任何状态回到 idle 状态
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">addTransitions&lt;/span>([
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#a6e22e">t&lt;/span>(&lt;span style="color:#a6e22e">ANY_STATE&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;RESET&amp;#39;&lt;/span>, &lt;span style="color:#e6db74">&amp;#39;idle&amp;#39;&lt;/span>, &lt;span style="color:#a6e22e">resetCallback&lt;/span>)
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]);
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="状态查询和预测">状态查询和预测&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-typescript" data-lang="typescript">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 检查当前状态是否可以接收特定事件
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">can&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;PAUSE&amp;#39;&lt;/span>)) {
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 可以执行暂停操作
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 获取事件触发后的下一个状态
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#a6e22e">nextState&lt;/span> &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">getNextState&lt;/span>(&lt;span style="color:#e6db74">&amp;#39;STOP&amp;#39;&lt;/span>); &lt;span style="color:#75715e">// &amp;#39;stopped&amp;#39;
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">// 检查当前是否为终止状态（没有可用的出站转换）
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">if&lt;/span> (&lt;span style="color:#a6e22e">sm&lt;/span>.&lt;span style="color:#a6e22e">isFinal&lt;/span>()) {
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e">// 到达终止状态
-&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="子状态机">子状态机&lt;/h3>
-&lt;p>子状态机是一种嵌套状态机机制，允许在一个主状态内部有自己的状态转换逻辑。这对于构建复杂的分层状态行为非常有用&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>设计模式 on Genluo</title><link>https://genluo.github.io/my-blog/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link><description>Recent content in 设计模式 on Genluo</description><generator>Hugo -- 0.149.0</generator><language>zh-cn</language><lastBuildDate>Tue, 08 Jul 2025 14:03:56 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.xml" rel="self" type="application/rss+xml"/><item><title>StateMachine</title><link>https://genluo.github.io/my-blog/posts/statemachine/</link><pubDate>Tue, 08 Jul 2025 14:03:56 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/statemachine/</guid><description>&lt;h2 id="状态机概述"&gt;状态机概述&lt;/h2&gt;
+&lt;p&gt;状态机是一种计算模型，用于描述系统在不同状态之间的转换逻辑。它由状态（States）、事件（Events）和转换（Transitions）组成。状态机在任一时刻只能处于一个特定状态，通过触发事件使其从一个状态转换到另一个状态。&lt;/p&gt;
+&lt;h2 id="核心概念"&gt;核心概念&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;状态（State）&lt;/strong&gt;：系统可能处于的一种情况或模式。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;事件（Event）&lt;/strong&gt;：触发状态转换的信号或动作。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;转换（Transition）&lt;/strong&gt;：定义从一个状态到另一个状态的规则。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;回调（Callback）&lt;/strong&gt;：状态转换时执行的逻辑。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="应用场景"&gt;应用场景&lt;/h2&gt;
+&lt;p&gt;状态机在以下场景中特别有用：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;游戏开发：管理游戏角色的不同状态（站立、行走、攻击、受伤等）。&lt;/li&gt;
+&lt;li&gt;UI 交互：控制界面元素在不同状态下的行为（正常、悬停、激活、禁用）。&lt;/li&gt;
+&lt;li&gt;工作流管理：追踪业务流程的不同阶段（创建、审核、发布）。&lt;/li&gt;
+&lt;li&gt;协议实现：网络协议的状态管理（连接中、已连接、断开连接）。&lt;/li&gt;
+&lt;li&gt;动画控制：管理动画序列和转换。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="基本用法"&gt;基本用法&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 定义状态和事件类型
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;type&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;State&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;stopped&amp;#39;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;type&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;Event&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;RESUME&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;STOP&amp;#39;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 创建状态机实例
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;new&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;StateMachine&lt;/span&gt;&amp;lt;&lt;span style="color:#f92672"&gt;State&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;Event&lt;/span&gt;&amp;gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, [
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;RESUME&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;STOP&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;stopped&amp;#39;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;]);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 触发状态转换
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;await&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;dispatch&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// idle -&amp;gt; running
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;console&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;log&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getState&lt;/span&gt;()); &lt;span style="color:#75715e"&gt;// &amp;#39;running&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="高级特性"&gt;高级特性&lt;/h2&gt;
+&lt;h3 id="全局事件any_state"&gt;全局事件（ANY_STATE）&lt;/h3&gt;
+&lt;p&gt;使用 &lt;code&gt;ANY_STATE&lt;/code&gt; 符号定义可从任意状态触发的转换：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// RESET 事件可从任何状态回到 idle 状态
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;addTransitions&lt;/span&gt;([
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;ANY_STATE&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;RESET&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;resetCallback&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;]);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="状态查询和预测"&gt;状态查询和预测&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 检查当前状态是否可以接收特定事件
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;can&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt;)) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// 可以执行暂停操作
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 获取事件触发后的下一个状态
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;nextState&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getNextState&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;STOP&amp;#39;&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// &amp;#39;stopped&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 检查当前是否为终止状态（没有可用的出站转换）
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;isFinal&lt;/span&gt;()) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// 到达终止状态
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="子状态机"&gt;子状态机&lt;/h3&gt;
+&lt;p&gt;子状态机是一种嵌套状态机机制，允许在一个主状态内部有自己的状态转换逻辑。这对于构建复杂的分层状态行为非常有用&lt;/p&gt;</description></item></channel></rss>
