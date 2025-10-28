@@ -1,8 +1,9 @@
 +++
 date = '2025-10-28T17:45:42+08:00'
 draft = false
-title = 'Agent'
+title = 'Agent 技术调研'
 description = 'Agent 相关技术调研，按照自己的层级思路，具体的介绍是AI生成的'
+tags = ['AI']
 +++
 
 ## `Agent` 内容

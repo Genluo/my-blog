@@ -1,6 +1,6 @@
 +++
 date = '2025-08-28T10:02:54+08:00'
-draft = true
+draft = false
 title = 'Clangformat'
 description = 'Clangformat相关规则存档记录'
 tags = ['存档']
