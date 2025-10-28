@@ -2,6 +2,7 @@
 date = '2025-07-17T11:35:06+08:00'
 draft = false
 title = 'Augment 试用'
+tags=['AI']
 +++
 
 最近试用了下 `augment` 进行一些需求开发，感觉相比 `cursor` 还是解决了一些问题，挺好的进行分享下
