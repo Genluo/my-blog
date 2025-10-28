@@ -1,5 +1,11 @@
 {
-	"cSpell.words": ["adityatelange"],
+	"cSpell.words": [
+		"adityatelange",
+		"Arango",
+		"FHIR",
+		"MEMGPT",
+		"Milvus"
+	],
 	"markdown.copyFiles.destination": {
 		"**/*.md": "${documentWorkspaceFolder}/static/img/"
 	}
