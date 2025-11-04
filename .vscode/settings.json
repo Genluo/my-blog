@@ -4,7 +4,9 @@
 		"Arango",
 		"FHIR",
 		"MEMGPT",
-		"Milvus"
+		"Milvus",
+		"openspec",
+		"signalr"
 	],
 	"markdown.copyFiles.destination": {
 		"**/*.md": "${documentWorkspaceFolder}/static/img/"
