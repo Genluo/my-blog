@@ -24,16 +24,39 @@
 &lt;h3 id="spec-kit-介绍"&gt;spec-kit 介绍&lt;/h3&gt;
 &lt;p&gt;spec-kit 是由 GitHub 开发的规范驱动开发（Spec-Driven Development, SDD）工具，旨在帮助开发团队专注于产品场景而非重复编码，从而构建高质量的软件。它通过先定义&amp;quot;做什么&amp;quot;，再决定&amp;quot;怎么做&amp;quot;的方式，让 AI 更好地理解和执行开发任务。&lt;/p&gt;
 &lt;h3 id="spec-kit-工作流程"&gt;spec-kit 工作流程&lt;/h3&gt;
-&lt;p&gt;spec-kit 的开发流程分为五个主要阶段：&lt;/p&gt;
-&lt;h4 id="1-constitution"&gt;1. constitution&lt;/h4&gt;
-&lt;p&gt;这是整个开发流程的基础阶段，需要明确项目的核心价值观和开发准则。constitution 文件定义了项目的&amp;quot;宪法&amp;quot;，包括：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;核心原则&lt;/strong&gt;：项目的基本理念和价值观，如代码质量标准、安全要求、性能目标等&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;技术约束&lt;/strong&gt;：技术栈选择、架构风格、编码规范等技术层面的限制&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;团队协作规则&lt;/strong&gt;：代码审查流程、文档要求、沟通方式等&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;质量标准&lt;/strong&gt;：测试覆盖率要求、性能指标、可维护性标准等&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;constitution 会被存储在 &lt;code&gt;.specify/memory/constitution.md&lt;/code&gt; 文件中，作为后续所有开发决策的参考依据。AI 在生成代码和方案时会严格遵循这些原则，确保输出的一致性和可预测性。&lt;/p&gt;</description></item><item><title>Agent 技术调研</title><link>https://genluo.github.io/my-blog/posts/agent/</link><pubDate>Tue, 28 Oct 2025 17:45:42 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/agent/</guid><description>Agent 相关技术调研，按照自己的层级思路，具体的介绍是AI生成的</description></item><item><title>如何写出高质量的 Prompt</title><link>https://genluo.github.io/my-blog/posts/prompt/</link><pubDate>Mon, 28 Jul 2025 16:13:52 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/prompt/</guid><description>&lt;p&gt;整个 AI Agent 的开发流程中，编写高质量的 Prompt 非常重要，目前总结了一些 writing prompt 的技巧，可以作为后续的参考&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code class="language-mermaid" data-lang="mermaid"&gt;graph TD
+Start([开始项目]) --&amp;gt; Constitution[1. Constitution&amp;lt;br/&amp;gt;定义项目宪法]
+Constitution --&amp;gt; |核心原则&amp;lt;br/&amp;gt;技术约束&amp;lt;br/&amp;gt;协作规则| Specify[2. Specify&amp;lt;br/&amp;gt;创建项目规范]
+Specify --&amp;gt; |功能描述&amp;lt;br/&amp;gt;用户场景&amp;lt;br/&amp;gt;业务规则| Clarify{3. Clarify&amp;lt;br/&amp;gt;需要澄清?}
+Clarify --&amp;gt; |是| ClarifyProcess[澄清模糊点&amp;lt;br/&amp;gt;解决不确定性]
+ClarifyProcess --&amp;gt; Plan
+Clarify --&amp;gt; |否| Plan[4. Plan&amp;lt;br/&amp;gt;制定技术方案]
+Plan --&amp;gt; |架构设计&amp;lt;br/&amp;gt;技术选型&amp;lt;br/&amp;gt;数据模型| Tasks[5. Tasks&amp;lt;br/&amp;gt;任务分解]
+Tasks --&amp;gt; |可执行任务列表| Analyze{6. Analyze&amp;lt;br/&amp;gt;需要分析?}
+Analyze --&amp;gt; |是| AnalyzeProcess[一致性分析&amp;lt;br/&amp;gt;验证完整性]
+AnalyzeProcess --&amp;gt; Implement
+Analyze --&amp;gt; |否| Implement[7. Implement&amp;lt;br/&amp;gt;任务实施]
+Implement --&amp;gt; SelectTask[选择任务]
+SelectTask --&amp;gt; Understand[理解需求]
+Understand --&amp;gt; WriteCode[编写代码]
+WriteCode --&amp;gt; WriteTest[编写测试]
+WriteTest --&amp;gt; CodeReview[代码审查]
+CodeReview --&amp;gt; Acceptance[验收确认]
+Acceptance --&amp;gt; MoreTasks{还有任务?}
+MoreTasks --&amp;gt; |是| SelectTask
+MoreTasks --&amp;gt; |否| End([项目完成])
+style Constitution fill:#e1f5ff
+style Specify fill:#e1f5ff
+style Clarify fill:#fff4e1
+style Plan fill:#e1f5ff
+style Tasks fill:#e1f5ff
+style Analyze fill:#fff4e1
+style Implement fill:#e8f5e9
+style Start fill:#f3e5f5
+style End fill:#f3e5f5
+classDef optional fill:#fff4e1,stroke:#ff9800,stroke-width:2px,stroke-dasharray: 5 5
+class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;spec-kit 的开发流程分为五个主要阶段：&lt;/p&gt;</description></item><item><title>Agent 技术调研</title><link>https://genluo.github.io/my-blog/posts/agent/</link><pubDate>Tue, 28 Oct 2025 17:45:42 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/agent/</guid><description>Agent 相关技术调研，按照自己的层级思路，具体的介绍是AI生成的</description></item><item><title>如何写出高质量的 Prompt</title><link>https://genluo.github.io/my-blog/posts/prompt/</link><pubDate>Mon, 28 Jul 2025 16:13:52 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/prompt/</guid><description>&lt;p&gt;整个 AI Agent 的开发流程中，编写高质量的 Prompt 非常重要，目前总结了一些 writing prompt 的技巧，可以作为后续的参考&lt;/p&gt;
 &lt;h2 id="要点"&gt;要点&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;内容需要详细，不要概括笼统，月具体越好&lt;/li&gt;
