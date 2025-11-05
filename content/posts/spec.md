@@ -470,6 +470,13 @@ description: 搭建新的 OpenSpec 变更并严格验证。
 
 <https://github.com/Fission-AI/OpenSpec/blob/8386b91a7149856425770e536425a42c405ce046/openspec/AGENTS.md?plain=1#L4>
 
+## claude-code-spec-workflow
+
+- claude-code-spec-workflow: <https://github.com/Pimzino/claude-code-spec-workflow>
+- spec-workflow-mcp: <https://github.com/Pimzino/spec-workflow-mcp>
+
+有两个仓库，其中一个 claude-code-spec-workflow 这个库是类似于 OpenSpec 给AI工具添加斜杠命令、规范工作流程等。另一个是 spec-workflow-mcp 针对工作流，提供实时的仪表盘，两个结合起来实现对应的工作流开发。也可以单独使用 claude-code-spec-workflow
+
 ## 总结
 
 spec-kit 和 OpenSpec 都采用规范驱动开发方法，但各有侧重：
@@ -483,6 +490,4 @@ spec-kit 和 OpenSpec 都采用规范驱动开发方法，但各有侧重：
 
 spec-kit: <https://www.aivi.fyi/llms/introduce-spec-kit>
 OpenSpec：<https://www.aivi.fyi/llms/introduce-OpenSpec>
-
-===
-工具、检索
+Claude-Code-Spec-Workflow:<https://www.aivi.fyi/aiagents/introduce-Claude-Code-Spec-Workflow>
