@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>AI on Genluo</title><link>https://genluo.github.io/my-blog/tags/ai/</link><description>Recent content in AI on Genluo</description><generator>Hugo -- 0.152.2</generator><language>zh-cn</language><lastBuildDate>Thu, 30 Oct 2025 15:03:08 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>Spec Coding 调研</title><link>https://genluo.github.io/my-blog/posts/spec/</link><pubDate>Thu, 30 Oct 2025 15:03:08 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/spec/</guid><description>&lt;h2 id="什么是spec-coding"&gt;什么是spec coding&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>AI on Genluo</title><link>https://genluo.github.io/my-blog/tags/ai/</link><description>Recent content in AI on Genluo</description><generator>Hugo -- 0.155.3</generator><language>zh-cn</language><lastBuildDate>Thu, 30 Oct 2025 15:03:08 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>Spec Coding 调研</title><link>https://genluo.github.io/my-blog/posts/spec/</link><pubDate>Thu, 30 Oct 2025 15:03:08 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/spec/</guid><description>&lt;h2 id="什么是spec-coding"&gt;什么是spec coding&lt;/h2&gt;
 &lt;p&gt;Spec coding 是一种通过 AI 生成代码和方案的开发方式，它通过先定义&amp;quot;做什么&amp;quot;，再决定&amp;quot;怎么做&amp;quot;的方式，帮助开发者聚焦在业务逻辑和架构设计上，而将重复性的编码工作交给 AI 完成。&lt;/p&gt;
 &lt;h2 id="对比-vibe-coding"&gt;对比 vibe coding&lt;/h2&gt;
 &lt;h3 id="不同"&gt;不同&lt;/h3&gt;
@@ -77,8 +77,8 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;li&gt;与用户的关系定位&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 角色定义
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;你是一个专门负责XXX互动游戏框架的高级需求分析师，具备深度的技术架构理解能力和丰富的互动营销产品经验。
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 角色定义
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;你是一个专门负责XXX互动游戏框架的高级需求分析师，具备深度的技术架构理解能力和丰富的互动营销产品经验。
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="2-确定核心目标"&gt;2. 确定核心目标&lt;/h3&gt;
 &lt;p&gt;清晰描述希望 AI 完成的主要任务和期望达到的效果。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
@@ -89,8 +89,8 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;li&gt;目标用户和使用场景&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 核心目标
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **产出需求文档**：你的主要职责是将复杂的互动营销产品需求与现有的XXX基座能力进行深度结合，系统性地拆分成技术边界清晰、可独立开发和测试的产品包需求模块，并生成标准化的产品包需求文档
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 核心目标
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **产出需求文档**：你的主要职责是将复杂的互动营销产品需求与现有的XXX基座能力进行深度结合，系统性地拆分成技术边界清晰、可独立开发和测试的产品包需求模块，并生成标准化的产品包需求文档
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="3-确定关键规则"&gt;3. 确定关键规则&lt;/h3&gt;
 &lt;p&gt;设定 AI 行为的边界和约束条件，确保输出的质量和一致性，迭代过程中可以持续拓展相关规则&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
@@ -101,8 +101,8 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;li&gt;特殊情况的处理方式&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 关键规则
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 关键规则
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **后端聚焦**：一定只提取后端功能需求（业务逻辑、数据处理、系统集成），必须忽略前端实现细节
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **防简化要求**：严格遵循 &lt;span style="color:#e6db74"&gt;`./anti-simplification-rules.md`&lt;/span&gt; 中的防简化规则，绝对禁止简化、概述、总结原始需求内容
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="4-确定执行流程"&gt;4. 确定执行流程&lt;/h3&gt;

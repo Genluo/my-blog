@@ -1,4 +1,42 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on Genluo</title><link>https://genluo.github.io/my-blog/posts/</link><description>Recent content in Posts on Genluo</description><generator>Hugo -- 0.152.2</generator><language>zh-cn</language><lastBuildDate>Thu, 30 Oct 2025 15:03:08 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Spec Coding 调研</title><link>https://genluo.github.io/my-blog/posts/spec/</link><pubDate>Thu, 30 Oct 2025 15:03:08 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/spec/</guid><description>&lt;h2 id="什么是spec-coding"&gt;什么是spec coding&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on Genluo</title><link>https://genluo.github.io/my-blog/posts/</link><description>Recent content in Posts on Genluo</description><generator>Hugo -- 0.155.3</generator><language>zh-cn</language><lastBuildDate>Sat, 14 Feb 2026 14:33:31 +0800</lastBuildDate><atom:link href="https://genluo.github.io/my-blog/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>服务端领域业务问题汇总</title><link>https://genluo.github.io/my-blog/posts/problem/</link><pubDate>Sat, 14 Feb 2026 14:33:31 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/problem/</guid><description>&lt;h2 id="1-性能相关"&gt;1. 性能相关&lt;/h2&gt;
+&lt;h3 id="11-慢查询问题数据库查询优化索引设计"&gt;1.1 慢查询问题：数据库查询优化、索引设计&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;问题描述：&lt;/strong&gt; 随着数据量增长，部分 SQL 查询响应时间从毫秒级退化到秒级甚至更长，直接拖慢接口响应，严重时导致数据库 CPU 打满、连接堆积，进而引发服务不可用。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;常见原因：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;缺少必要索引或索引失效（如对索引列使用函数、隐式类型转换、前导模糊查询 &lt;code&gt;LIKE '%xxx'&lt;/code&gt;）&lt;/li&gt;
+&lt;li&gt;查询未命中覆盖索引，产生大量回表操作&lt;/li&gt;
+&lt;li&gt;联合索引列顺序不当，违反最左前缀原则&lt;/li&gt;
+&lt;li&gt;单表数据量过大（千万级以上），B+ 树层级增加导致 IO 次数上升&lt;/li&gt;
+&lt;li&gt;复杂 JOIN、子查询导致临时表和文件排序&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;解决方案：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;开启慢查询日志（&lt;code&gt;slow_query_log&lt;/code&gt;），通过 &lt;code&gt;EXPLAIN&lt;/code&gt; / &lt;code&gt;EXPLAIN ANALYZE&lt;/code&gt; 分析执行计划，关注 &lt;code&gt;type&lt;/code&gt;、&lt;code&gt;rows&lt;/code&gt;、&lt;code&gt;Extra&lt;/code&gt; 等关键字段&lt;/li&gt;
+&lt;li&gt;根据查询模式设计合理索引：高选择性列优先、覆盖索引减少回表、联合索引遵循最左前缀&lt;/li&gt;
+&lt;li&gt;避免 &lt;code&gt;SELECT *&lt;/code&gt;，只查询需要的列；将复杂查询拆分为多次简单查询&lt;/li&gt;
+&lt;li&gt;引入读写分离，将分析型查询路由到从库&lt;/li&gt;
+&lt;li&gt;超大表考虑分库分表或归档历史数据&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id="12-n1-查询问题orm-使用不当导致的性能问题"&gt;1.2 N+1 查询问题：ORM 使用不当导致的性能问题&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;问题描述：&lt;/strong&gt; 在使用 ORM（如 Hibernate、MyBatis、Django ORM）查询关联数据时，先执行 1 次查询获取主表列表，再对列表中每条记录分别执行 1 次关联查询，总共产生 N+1 次数据库访问，导致接口延迟随数据量线性增长。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;常见原因：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ORM 默认使用懒加载（Lazy Loading），在遍历集合时触发逐条查询&lt;/li&gt;
+&lt;li&gt;开发者未意识到 ORM 在循环中自动发起 SQL&lt;/li&gt;
+&lt;li&gt;缺乏 SQL 审计机制，问题在开发环境不易暴露（数据量小）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;解决方案：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用 Eager Loading / Join Fetch 一次性加载关联数据（如 JPA 的 &lt;code&gt;@EntityGraph&lt;/code&gt;、&lt;code&gt;JOIN FETCH&lt;/code&gt;）&lt;/li&gt;
+&lt;li&gt;使用批量加载策略（如 Hibernate 的 &lt;code&gt;@BatchSize&lt;/code&gt;，MyBatis 的 &lt;code&gt;&amp;lt;collection&amp;gt;&lt;/code&gt; 嵌套查询改为 JOIN）&lt;/li&gt;
+&lt;li&gt;在应用层手动做批量 ID 查询：先收集所有关联 ID，一次 &lt;code&gt;IN&lt;/code&gt; 查询获取全部关联数据，再在内存中组装&lt;/li&gt;
+&lt;li&gt;引入 SQL 监控（如 p6spy、Druid 监控），在开发/测试阶段发现 N+1 问题&lt;/li&gt;
+&lt;li&gt;Code Review 时关注循环内的数据库访问模式&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id="13-大数据量分页深度分页性能下降"&gt;1.3 大数据量分页：深度分页性能下降&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;问题描述：&lt;/strong&gt; 使用 &lt;code&gt;LIMIT offset, size&lt;/code&gt; 进行分页时，当 offset 值很大（如第 10000 页），数据库需要先扫描并丢弃前 offset 条记录，导致查询耗时随页码增加而线性增长。百万级数据的深度分页可能需要数秒甚至超时。&lt;/p&gt;</description></item><item><title>Spec Coding 调研</title><link>https://genluo.github.io/my-blog/posts/spec/</link><pubDate>Thu, 30 Oct 2025 15:03:08 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/spec/</guid><description>&lt;h2 id="什么是spec-coding"&gt;什么是spec coding&lt;/h2&gt;
 &lt;p&gt;Spec coding 是一种通过 AI 生成代码和方案的开发方式，它通过先定义&amp;quot;做什么&amp;quot;，再决定&amp;quot;怎么做&amp;quot;的方式，帮助开发者聚焦在业务逻辑和架构设计上，而将重复性的编码工作交给 AI 完成。&lt;/p&gt;
 &lt;h2 id="对比-vibe-coding"&gt;对比 vibe coding&lt;/h2&gt;
 &lt;h3 id="不同"&gt;不同&lt;/h3&gt;
@@ -71,11 +109,11 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;p&gt;代码中主要包含两个部分，一个是队列链表，这个链表中存储很多的 block，每个 block 内部实现又是一个链表，这个链表，有读写两个指针，可以存放多个线程共享的元素&lt;/p&gt;
 &lt;h3 id="2-内存中结构"&gt;2. 内存中结构&lt;/h3&gt;
 &lt;p&gt;存储的数据分为两部分，一部分是 Block 中属性数据+内存对其&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-cpp" data-lang="cpp"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; size &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;sizeof&lt;/span&gt;(Block) &lt;span style="color:#f92672"&gt;+&lt;/span&gt; std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;alignment_of&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;Block&lt;span style="color:#f92672"&gt;&amp;gt;::&lt;/span&gt;value &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-cpp" data-lang="cpp"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; size &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;sizeof&lt;/span&gt;(Block) &lt;span style="color:#f92672"&gt;+&lt;/span&gt; std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;alignment_of&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;Block&lt;span style="color:#f92672"&gt;&amp;gt;::&lt;/span&gt;value &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;另一部分则是需要存储的具体数据：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-cpp" data-lang="cpp"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;size &lt;span style="color:#f92672"&gt;+=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;sizeof&lt;/span&gt;(T) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; capacity &lt;span style="color:#f92672"&gt;+&lt;/span&gt; std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;alignment_of&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;T&lt;span style="color:#f92672"&gt;&amp;gt;::&lt;/span&gt;value &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-cpp" data-lang="cpp"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;size &lt;span style="color:#f92672"&gt;+=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;sizeof&lt;/span&gt;(T) &lt;span style="color:#f92672"&gt;*&lt;/span&gt; capacity &lt;span style="color:#f92672"&gt;+&lt;/span&gt; std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;alignment_of&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;T&lt;span style="color:#f92672"&gt;&amp;gt;::&lt;/span&gt;value &lt;span style="color:#f92672"&gt;-&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;针对申请的内容，实际分配内存进行指针对齐&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-cpp" data-lang="cpp"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; newBlockRaw &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;static_cast&lt;/span&gt;&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&amp;gt;&lt;/span&gt;(std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;malloc(size));
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-cpp" data-lang="cpp"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; newBlockRaw &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;static_cast&lt;/span&gt;&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&amp;gt;&lt;/span&gt;(std&lt;span style="color:#f92672"&gt;::&lt;/span&gt;malloc(size));
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; newBlockAligned &lt;span style="color:#f92672"&gt;=&lt;/span&gt; align_for&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;Block&lt;span style="color:#f92672"&gt;&amp;gt;&lt;/span&gt;(newBlockRaw);
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;auto&lt;/span&gt; newBlockData &lt;span style="color:#f92672"&gt;=&lt;/span&gt; align_for&lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt;T&lt;span style="color:#f92672"&gt;&amp;gt;&lt;/span&gt;(newBlockAligned &lt;span style="color:#f92672"&gt;+&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;sizeof&lt;/span&gt;(Block));
@@ -98,7 +136,7 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;p&gt;generates a compilation database for clang tooling.&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;如果使用的是其他的构建系统，没有使用 &lt;code&gt;cmake&lt;/code&gt; 可以使用这个工具，生成对应的 &lt;code&gt;compile_commands.json&lt;/code&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;bear -- make
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;bear -- make
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-4.png"&gt;&lt;/p&gt;
 &lt;p&gt;重启服务之后，可以正常进行跳转&lt;/p&gt;
 &lt;p&gt;&lt;img alt="alt text" loading="lazy" src="https://genluo.github.io/my-blog/img/image-5.png"&gt;&lt;/p&gt;</description></item><item><title>如何写出高质量的 Prompt</title><link>https://genluo.github.io/my-blog/posts/prompt/</link><pubDate>Mon, 28 Jul 2025 16:13:52 +0800</pubDate><guid>https://genluo.github.io/my-blog/posts/prompt/</guid><description>&lt;p&gt;整个 AI Agent 的开发流程中，编写高质量的 Prompt 非常重要，目前总结了一些 writing prompt 的技巧，可以作为后续的参考&lt;/p&gt;
@@ -122,8 +160,8 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;li&gt;与用户的关系定位&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 角色定义
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;你是一个专门负责XXX互动游戏框架的高级需求分析师，具备深度的技术架构理解能力和丰富的互动营销产品经验。
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 角色定义
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;你是一个专门负责XXX互动游戏框架的高级需求分析师，具备深度的技术架构理解能力和丰富的互动营销产品经验。
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="2-确定核心目标"&gt;2. 确定核心目标&lt;/h3&gt;
 &lt;p&gt;清晰描述希望 AI 完成的主要任务和期望达到的效果。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
@@ -134,8 +172,8 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;li&gt;目标用户和使用场景&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 核心目标
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **产出需求文档**：你的主要职责是将复杂的互动营销产品需求与现有的XXX基座能力进行深度结合，系统性地拆分成技术边界清晰、可独立开发和测试的产品包需求模块，并生成标准化的产品包需求文档
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 核心目标
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **产出需求文档**：你的主要职责是将复杂的互动营销产品需求与现有的XXX基座能力进行深度结合，系统性地拆分成技术边界清晰、可独立开发和测试的产品包需求模块，并生成标准化的产品包需求文档
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="3-确定关键规则"&gt;3. 确定关键规则&lt;/h3&gt;
 &lt;p&gt;设定 AI 行为的边界和约束条件，确保输出的质量和一致性，迭代过程中可以持续拓展相关规则&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;要点：&lt;/strong&gt;&lt;/p&gt;
@@ -146,8 +184,8 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;li&gt;特殊情况的处理方式&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 关键规则
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 关键规则
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **后端聚焦**：一定只提取后端功能需求（业务逻辑、数据处理、系统集成），必须忽略前端实现细节
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; **防简化要求**：严格遵循 &lt;span style="color:#e6db74"&gt;`./anti-simplification-rules.md`&lt;/span&gt; 中的防简化规则，绝对禁止简化、概述、总结原始需求内容
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="4-确定执行流程"&gt;4. 确定执行流程&lt;/h3&gt;
@@ -187,12 +225,12 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;li&gt;动画控制：管理动画序列和转换。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id="基本用法"&gt;基本用法&lt;/h2&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 定义状态和事件类型
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;type&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;State&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;stopped&amp;#39;&lt;/span&gt;;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 定义状态和事件类型
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;type&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;State&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;stopped&amp;#39;&lt;/span&gt;;
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;type&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;Event&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;RESUME&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;|&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;STOP&amp;#39;&lt;/span&gt;;
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 创建状态机实例
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;new&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;StateMachine&lt;/span&gt;&amp;lt;&lt;span style="color:#f92672"&gt;State&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;Event&lt;/span&gt;&amp;gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, [
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;new&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;StateMachine&lt;/span&gt;&amp;lt;&lt;span style="color:#f92672"&gt;State&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;Event&lt;/span&gt;&amp;gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, [
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;),
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt;),
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;paused&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;RESUME&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;running&amp;#39;&lt;/span&gt;),
@@ -200,27 +238,27 @@ class Clarify,ClarifyProcess,Analyze,AnalyzeProcess optional
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;]);
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 触发状态转换
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;await&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;dispatch&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// idle -&amp;gt; running
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;console&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;log&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getState&lt;/span&gt;()); &lt;span style="color:#75715e"&gt;// &amp;#39;running&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;await&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;dispatch&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;START&amp;#39;&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// idle -&amp;gt; running
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;console&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;log&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getState&lt;/span&gt;()); &lt;span style="color:#75715e"&gt;// &amp;#39;running&amp;#39;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id="高级特性"&gt;高级特性&lt;/h2&gt;
 &lt;h3 id="全局事件any_state"&gt;全局事件（ANY_STATE）&lt;/h3&gt;
 &lt;p&gt;使用 &lt;code&gt;ANY_STATE&lt;/code&gt; 符号定义可从任意状态触发的转换：&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// RESET 事件可从任何状态回到 idle 状态
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;addTransitions&lt;/span&gt;([
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// RESET 事件可从任何状态回到 idle 状态
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;addTransitions&lt;/span&gt;([
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;t&lt;/span&gt;(&lt;span style="color:#a6e22e"&gt;ANY_STATE&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;RESET&amp;#39;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#39;idle&amp;#39;&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;resetCallback&lt;/span&gt;)
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;]);
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="状态查询和预测"&gt;状态查询和预测&lt;/h3&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 检查当前状态是否可以接收特定事件
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;can&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt;)) {
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-typescript" data-lang="typescript"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 检查当前状态是否可以接收特定事件
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;can&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;PAUSE&amp;#39;&lt;/span&gt;)) {
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// 可以执行暂停操作
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 获取事件触发后的下一个状态
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;nextState&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getNextState&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;STOP&amp;#39;&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// &amp;#39;stopped&amp;#39;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;nextState&lt;/span&gt; &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;getNextState&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#39;STOP&amp;#39;&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// &amp;#39;stopped&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// 检查当前是否为终止状态（没有可用的出站转换）
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;isFinal&lt;/span&gt;()) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;sm&lt;/span&gt;.&lt;span style="color:#a6e22e"&gt;isFinal&lt;/span&gt;()) {
 &lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// 到达终止状态
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="子状态机"&gt;子状态机&lt;/h3&gt;
 &lt;p&gt;子状态机是一种嵌套状态机机制，允许在一个主状态内部有自己的状态转换逻辑。这对于构建复杂的分层状态行为非常有用&lt;/p&gt;</description></item></channel></rss>
